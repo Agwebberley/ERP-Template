@@ -36,25 +36,18 @@ class Command(BaseCommand):
                 form_class_name = f'{model_name}Form'
 
                 # Check for related models and prepare to generate inline formsets
-                related_models = [rel.related_model for rel in model._meta.related_objects]
-                for rel_model in related_models:
-                    rel_model_name = rel_model.__name__
-                    try:
-                        fk_name = rel_model._meta.get_field(rel_model._meta.auto_created).name
-                    except Exception:
-                        fk_name = None
-                    if fk_name:
-                        formset_definitions += f"""
-{rel_model_name}Formset = MasterDetailForm.get_inline_formset(
-    related_model={rel_model_name},
-    form={rel_model_name}Form,
-    fk_name='{fk_name}',
-    extra=1, can_delete=True)\n"""
+                related_models = model._meta.get_fields()
+                inline_formsets = []
 
-                # Generate the form class, including formset definitions if any
-                form_class_code = f"""class {form_class_name}(MasterDetailForm):
-    class Meta(MasterDetailForm.Meta):
-        model = {model_name}
-        fields = '__all__'
-{formset_definitions}\n\n"""
-                f.write(form_class_code)
+                for related_model in related_models:
+                    if related_model.one_to_many or related_model.one_to_one:
+                        inline_formset_name = f'{model_name}{related_model.name.capitalize()}FormSet'
+                        inline_formset_definition = f'class {inline_formset_name}(forms.BaseInlineFormSet):\n\tmodel = {related_model.related_model.__name__}\n\tfields = "__all__"\n\textra = 1\n\n'
+                        formset_definitions += inline_formset_definition
+                        inline_formsets.append(inline_formset_name)
+
+                form_class_definition = f'class {form_class_name}(MasterDetailForm):\n\tclass Meta:\n\t\tmodel = {model_name}\n\t\tfields = "__all__"\n\n{"".join([f"{related_model.related_model.__name__} = forms.inlineformset_factory({model_name}, {related_model.related_model.__name__}, form={inline_formset_name}, extra=1)\n" for related_model, inline_formset_name in zip(related_models, inline_formsets)])}'
+
+                f.write(form_class_definition)
+
+            f.write(formset_definitions)
