@@ -37,7 +37,7 @@ class Command(BaseCommand):
     
     def generate_views(self, models, app_label):
         views_content = ""
-        views_content += f"from django.views.generic import View\nfrom django.shortcuts import render, redirect\nfrom .forms import *\n\n"
+        views_content += f"from django.shortcuts import render, redirect\nfrom django.urls import reverse_lazy\nfrom .forms import *\nfrom core.base_views import MasterFormView, MasterDeleteView, MasterListView\n"
         for model in models:
             views_content += self.generate_view_for_model(model, app_label)
         
@@ -52,28 +52,18 @@ class Command(BaseCommand):
         view_class_name = f'{model_name}View'
         success_url = '/'  # Define how you want to set the success URL
 
+        # Based on the MasterFormView class from base_views.py
         view_template = f"""
-class {view_class_name}(View):
-    template_name = 'form.html'
+class {view_class_name}(MasterFormView):
+    model = {model_name}
     form_class = {form_class_name}
-    success_url = '{success_url}'
+    success_url = reverse_lazy('{success_url}')
 
-    def get(self, request, *args, **kwargs):
-        form = self.form_class()
-        inline_formsets = form.get_inline_formsets()
-        return render(request, self.template_name, {{'form': form, 'inline_formsets': inline_formsets}})
+class {model_name}ListView(MasterListView):
+    model = {model_name}
 
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(data=request.POST, files=request.FILES)
-        if form.is_valid():
-            main_instance = form.save()
-            inline_formsets = form.get_inline_formsets(instance=main_instance, data=request.POST, files=request.FILES)
-            if all(formset.is_valid() for formset in inline_formsets):
-                for formset in inline_formsets:
-                    formset.save()
-                return redirect(self.success_url)
-        inline_formsets = form.get_inline_formsets(data=request.POST, files=request.FILES)
-        return render(request, self.template_name, {{'form': form, 'inline_formsets': inline_formsets}})
+class {model_name}DeleteView(MasterDeleteView):
+    model = {model_name}
+    success_url = reverse_lazy('{success_url}')
 """
-
         return view_template

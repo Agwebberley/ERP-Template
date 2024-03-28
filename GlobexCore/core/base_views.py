@@ -1,8 +1,10 @@
 from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic import DetailView, ListView
+
 from django.shortcuts import render, redirect
 
-class BaseFormWithInlineFormsetView(CreateView, UpdateView):
+class MasterFormView(CreateView, UpdateView):
     model = None  # This should be overridden in the subclass
     form_class = None  # This should be overridden in the subclass
     inline_formset_classes = []  # List of inline formset classes
@@ -40,3 +42,27 @@ class BaseFormWithInlineFormsetView(CreateView, UpdateView):
         inline_formsets = form.get_inline_formsets(data=request.POST, files=request.FILES, instance=instance if 'pk' in kwargs else None)
         return render(request, self.template_name if 'pk' not in kwargs else 'detail_or_update_template.html', {'form': form, 'inline_formsets': inline_formsets})
 
+class MasterListView(ListView):
+    model = None  # This should be overridden in the subclass
+    template_name = 'listview.html'  # Specify your read template
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['model_fields'] = [field.name for field in self.model._meta.get_fields()]
+        context['patterns'] = {'Update': f'{self.model.__name__.lower()}_update', 'Delete': f'{self.model.__name__.lower()}_delete'}
+        context['h1'] = self.model.__name__ + 's'
+        context['bpattern'] = f'{self.model.__name__.lower()}_create'
+        context['bname'] = f'Create {self.model.__name__}'
+        return context
+
+class MasterDeleteView(DeleteView):
+    model = None # This should be overridden in the subclass
+    template_name = 'delete.html'  # Confirmation template
+    success_url = reverse_lazy('/')  # Override this in subclasses
+
+    def get_context_data(self, **kwargs):
+        object = self.get_object()
+        context = super().get_context_data(**kwargs)
+        context['object_name'] = str(object)
+        context['pattern'] = f'{self.model.__name__.lower()}_list'
+        return context
