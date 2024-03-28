@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load filters %}
+
+<!-- Override the textboxes to always have black text -->
+<style>
+    input, select, textarea {
+        color: black;
+    }
+</style>
+
+<div class="bg-white dark:bg-gray-900 w-4/5 text-black dark:text-white">
+    <form class="p-6 flowbite container mx-auto px-16 grid gap-4 grid-cols-2 grid-rows-auto" method="post">
+        {% csrf_token %}
+        {{ form }}
+
+        <!-- Inline Formsets -->
+        {% for inline_formset in inline_formsets %}
+            <fieldset class="col-span-2">
+                <legend>{{ inline_formset.model._meta.verbose_name_plural }}</legend>
+                {{ inline_formset.management_form }}
+                {% for form in inline_formset %}
+                    <div class="inline-formset">
+                        {{ form }}
+                        <button type="button" class="btn btn-error" id="remove-form-btn">Remove</button>
+                    </div>
+                {% endfor %}
+                <button type="button" class="btn btn-primary" id="add-form-btn">Add another</button>
+            </fieldset>
+        {% endfor %}
+
+        <button type="submit" class="col-span-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            Submit
+        </button>
+    </form>
+</div>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        const addBtn = document.getElementById('add-form-btn');
+        const formsetContainer = document.getElementById('formset-container');
+        const totalForms = document.getElementById('id_{{ inline_formset.prefix }}-TOTAL_FORMS');
+
+        // Function to update the form index of each form in the formset
+        const updateFormIndexes = () => {
+            const forms = formsetContainer.querySelectorAll('.inline-form');
+            forms.forEach((form, index) => {
+                Array.from(form.querySelectorAll('input, select, textarea, label')).forEach((element) => {
+                    const name = element.getAttribute('name');
+                    const id = element.getAttribute('id');
+                    const forAttribute = element.getAttribute('for');
+                    if (name) element.setAttribute('name', name.replace(/-\d+-/, `-${index}-`));
+                    if (id) element.setAttribute('id', id.replace(/-\d+-/, `-${index}-`));
+                    if (forAttribute) element.setAttribute('for', forAttribute.replace(/-\d+-/, `-${index}-`));
+                });
+            });
+        };
+
+        // Add form
+        addBtn.addEventListener('click', () => {
+            const newForm = formsetContainer.querySelector('.inline-form').cloneNode(true);
+            const formRegex = RegExp(`-${totalForms.value}-`, 'g');
+            
+            newForm.innerHTML = newForm.innerHTML.replace(formRegex, `-${parseInt(totalForms.value)}-`);
+            formsetContainer.insertBefore(newForm, addBtn);
+
+            totalForms.setAttribute('value', `${parseInt(totalForms.value) + 1}`);
+            updateFormIndexes();
+        });
+
+        // Remove form
+        formsetContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-form-btn')) {
+                e.target.closest('.inline-form').remove();
+                totalForms.setAttribute('value', `${parseInt(totalForms.value) - 1}`);
+                updateFormIndexes();
+            }
+        });
+    });
+</script>
+{% endblock %}

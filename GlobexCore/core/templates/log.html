@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bg-white dark:bg-gray-900 w-4/5 text-black dark:text-white"> 
+    <div class="p-4">
+        <h1 class="dark:text-white text-black font-bold mb-4 text-3xl" data-pg-class-style-inline="font-bold mb-4 text-3xl" data-pg-class-style="text">Customer Database Log</h1>
+        <h1 class="dark:text-white font-bold mb-4 text-3xl text-black"></h1>
+        <table class="table-auto">
+            <thead>
+                <tr>
+                    <th data-pg-class-style="text" data-pg-class-style-inline="px-4 py-2" class="dark:text-white text-black px-4 py-2">timestamp</th>
+                    <th class="dark:text-white text-black px-4 py-2" data-pg-class-style-inline="px-4 py-2" data-pg-class-style="text">message</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in object_list %}
+                <tr>
+                    <td class="dark:text-white text-black border px-4 py-2" data-pg-class-style-inline="border px-4 py-2" data-pg-class-style="text">{{ log.created_at }}</td>
+                    <td class="dark:text-white text-black border px-4 py-2" data-pg-class-style-inline="border px-4 py-2" data-pg-class-style="text">{{ log.message }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<script src="templating.js"></script>
+{% endblock %}

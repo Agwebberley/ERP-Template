@@ -1,0 +1,50 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+    <head> 
+        <meta charset="UTF-8"> 
+        <title>{% block title %}{{ APPNAME }}{% endblock %}</title>         
+        <script>/* Pinegrow Interactions, do not remove */ (function(){try{if(!document.documentElement.hasAttribute('data-pg-ia-disabled')) { window.pgia_small_mq=typeof pgia_small_mq=='string'?pgia_small_mq:'(max-width:767px)';window.pgia_large_mq=typeof pgia_large_mq=='string'?pgia_large_mq:'(min-width:768px)';var style = document.createElement('style');var pgcss='html:not(.pg-ia-no-preview) [data-pg-ia-hide=""] {opacity:0;visibility:hidden;}html:not(.pg-ia-no-preview) [data-pg-ia-show=""] {opacity:1;visibility:visible;display:block;}';if(document.documentElement.hasAttribute('data-pg-id') && document.documentElement.hasAttribute('data-pg-mobile')) {pgia_small_mq='(min-width:0)';pgia_large_mq='(min-width:99999px)'} pgcss+='@media ' + pgia_small_mq + '{ html:not(.pg-ia-no-preview) [data-pg-ia-hide="mobile"] {opacity:0;visibility:hidden;}html:not(.pg-ia-no-preview) [data-pg-ia-show="mobile"] {opacity:1;visibility:visible;display:block;}}';pgcss+='@media ' + pgia_large_mq + '{html:not(.pg-ia-no-preview) [data-pg-ia-hide="desktop"] {opacity:0;visibility:hidden;}html:not(.pg-ia-no-preview) [data-pg-ia-show="desktop"] {opacity:1;visibility:visible;display:block;}}';style.innerHTML=pgcss;document.querySelector('head').appendChild(style);}}catch(e){console&&console.log(e);}})()</script>         
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.0/flowbite.min.css" rel="stylesheet" />
+        <script src="https://cdn.tailwindcss.com/"></script>         
+        <link rel="stylesheet" href="blocks.css"> 
+    </head>     
+    <body class="bg-white dark:bg-gray-900"> 
+        <header class="container mx-auto"> 
+            <nav class="flex items-center flex-wrap px-4 py-5 bg-white dark:bg-gray-900"> <a href="#" class="text-blue-600 dark:text-blue-300 text-xl font-medium uppercase hover:text-blue-800 mr-auto">Prototype</a> 
+                <button class="hover:bg-blue-600 hover:text-white px-3 py-2 rounded text-blue-600 dark:text-blue-300 lg:hidden" data-name="nav-toggler" data-pg-ia='{"l":[{"name":"NabMenuToggler","trg":"click","a":{"l":[{"t":"^nav|[data-name=nav-menu]","l":[{"t":"set","p":0,"d":0,"l":{"class.remove":"hidden"}}]},{"t":"#gt# span:nth-of-type(1)","l":[{"t":"tween","p":0,"d":0.2,"l":{"rotationZ":45,"yPercent":300}}]},{"t":"#gt# span:nth-of-type(2)","l":[{"t":"tween","p":0,"d":0.2,"l":{"autoAlpha":0}}]},{"t":"#gt# span:nth-of-type(3)","l":[{"t":"tween","p":0,"d":0.2,"l":{"rotationZ":-45,"yPercent":-300}}]}]},"pdef":"true","trev":"true"}]}' data-pg-ia-apply="$nav [data-name=nav-toggler]"> <span class="block border-b-2 border-current my-1 w-6"></span> <span class="block border-b-2 border-current my-1 w-6"></span> <span class="block border-b-2 border-current my-1 w-6"></span> 
+                </button>                 
+                <div class="lg:flex lg:space-x-4 lg:space-y-0 lg:w-auto space-y-2 w-full hidden lg:items-center" data-name="nav-menu"></div>                 
+            </nav>             
+        </header>         
+        <div class="flex flex-row h-screen"> 
+            <div class="bg-white dark:bg-gray-900 mx-auto w-1/5"> 
+                <nav class="mt-20 p-4"> 
+                    <ul class="list-none text-black dark:text-white text-center"> 
+                        <li class="mb-4 transition duration-500 ease-in-out transform hover:translate-x-1 hover:text-blue-700 relative"> <a href="{% url 'shared:index' %}" class="text-blue-500 dark:text-blue-300">Home</a> 
+                        </li>                         
+                        <li class="mb-4 transition duration-500 ease-in-out transform hover:translate-x-1 hover:text-blue-700 relative"> <a href="{% url 'customers:customer_list' %}" class="text-blue-500 dark:text-blue-300">Customers</a> 
+                        </li>                         
+                        <li class="mb-4 transition duration-500 ease-in-out transform hover:translate-x-1 hover:text-blue-700 relative"> <a href="{% url 'items:item_list' %}" class="text-blue-500 dark:text-blue-300">Items</a> 
+                        </li>                         
+                        <li class="mb-4 transition duration-500 ease-in-out transform hover:translate-x-1 hover:text-blue-700 relative"> <a href="{% url 'inventory:inventory_list' %}" class="text-blue-500 dark:text-blue-300">Inventory</a> 
+                        </li>
+                        <li class="mb-4 transition duration-500 ease-in-out transform hover:translate-x-1 hover:text-blue-700 relative"> <a href="{% url 'inventory:pick_list' %}" class="text-blue-500 dark:text-blue-300">Pick</a> 
+                        </li>
+                        <li class="mb-4 transition duration-500 ease-in-out transform hover:translate-x-1 hover:text-blue-700 relative"> <a href="{% url 'inventory:bin_list' %}" class="text-blue-500 dark:text-blue-300">Bin</a> 
+                        </li>                         
+                        <li class="mb-4 transition duration-500 ease-in-out transform hover:translate-x-1 hover:text-blue-700 relative"> <a href="{% url 'manufacture:manufacture_list' %}" class="text-blue-500 dark:text-blue-300">Manufacture</a> 
+                        </li>                         
+                        <li class="mb-4 transition duration-500 ease-in-out transform hover:translate-x-1 hover:text-blue-700 relative"> <a href="{% url 'orders:order_list' %}" class="text-blue-500 dark:text-blue-300">Orders</a> 
+                        </li>                         
+                        <li class="mb-4 transition duration-500 ease-in-out transform hover:translate-x-1 hover:text-blue-700 relative"> <a href="{% url 'accounts_receivable:accounts_receivable_list' %}" class="text-blue-500 dark:text-blue-300">Accounts Receivable</a> 
+                        </li>                         
+                        <li class="mb-4 transition duration-500 ease-in-out transform hover:translate-x-1 hover:text-blue-700 relative"> <a href="{% url 'shared:log' %}" class="text-blue-500 dark:text-blue-300">Log</a> 
+                        </li>                         
+                    </ul>                     
+                </nav>                 
+            </div>             
+            {% block content %} {% endblock %}                 
+        </div>         
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.0/flowbite.min.js"></script>
+    </body>     
+</html>
