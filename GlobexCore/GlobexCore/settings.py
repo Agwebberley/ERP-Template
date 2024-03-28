@@ -32,7 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'Customers',
-    'code',
+    'core',
     'Inventory',
     'Orders',
     'Invoices',
