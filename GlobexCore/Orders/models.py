@@ -1,13 +1,14 @@
 from django.db import models
+from Parts.models import parts
 
 
 class orderDetails(models.Model):
     OrderDetailID = models.IntegerField(primary_key=True)
-    PartID = models.IntegerField()
     Quantity = models.IntegerField()
     UnitPrice = models.FloatField()
-    LineTotal = models.CharField()
-    Status = models.CharField()
+    LineTotal = models.CharField(max_length=255)
+    Status = models.CharField(max_length=255)
+    PartID = models.ForeignKey(parts, on_delete=models.CASCADE)
     OrderID = models.ForeignKey('orderHeaders', on_delete=models.CASCADE)
 
 
@@ -17,10 +18,10 @@ class orderHeaders(models.Model):
     OrderDate = models.DateTimeField()
     RequiredDate = models.DateTimeField()
     ShipDate = models.DateTimeField()
-    Status = models.CharField()
-    ShippingMethod = models.CharField()
+    Status = models.CharField(max_length=255)
+    ShippingMethod = models.CharField(max_length=255)
     FrieghtCharge = models.FloatField()
     TaxAmount = models.FloatField()
     TotalAmount = models.FloatField()
     PaymentReceived = models.BooleanField()
-    Notes = models.TextField(max_length=255)
+    Notes = models.TextField()

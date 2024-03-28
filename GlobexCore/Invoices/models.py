@@ -1,11 +1,11 @@
 from django.db import models
-from Parts import parts
+from Parts.models import parts
 
 
 class invoiceDetails(models.Model):
     InvoiceDetailID = models.IntegerField(primary_key=True)
     InvoiceID = models.IntegerField()
-    Description = models.TextField(max_length=255)
+    Description = models.TextField()
     Quantity = models.IntegerField()
     UnitPrice = models.FloatField()
     LineTotal = models.FloatField()
@@ -22,9 +22,9 @@ class invoiceHeaders(models.Model):
     InvoiceDate = models.DateTimeField()
     DueDate = models.DateTimeField()
     TotalAmount = models.FloatField()
-    Status = models.CharField()
+    Status = models.CharField(max_length=255)
     TaxAmount = models.FloatField()
     DiscountAmount = models.FloatField()
     ShippingAmount = models.IntegerField()
-    PaymentTerms = models.TextField(max_length=255)
-    Notes = models.TextField(max_length=255)
+    PaymentTerms = models.TextField()
+    Notes = models.TextField()
