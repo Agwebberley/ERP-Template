@@ -6,31 +6,37 @@ class BaseFormWithInlineFormsetView(CreateView, UpdateView):
     model = None  # This should be overridden in the subclass
     form_class = None  # This should be overridden in the subclass
     inline_formset_classes = []  # List of inline formset classes
-    template_name = 'your_generic_template.html'
-    success_url = reverse_lazy('your_default_success_url')  # Override this in subclasses
+    template_name = 'form.html'
+    success_url = reverse_lazy('/')  # Override this in subclasses
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.request.POST:
-            context['form'] = self.form_class(self.request.POST, instance=self.object)
-            context['inline_formsets'] = [
-                formset_class(self.request.POST, instance=self.object) for formset_class in self.inline_formset_classes
-            ]
+    def get(self, request, *args, **kwargs):
+        if 'pk' in kwargs:
+            # If a primary key (pk) is provided in the URL, treat this as a detail or update view
+            instance = self.model.objects.get(pk=kwargs['pk'])
+            form = self.form_class(instance=instance)
+            inline_formsets = form.get_inline_formsets(instance=instance)
+            return render(request, 'detail_or_update_template.html', {'form': form, 'inline_formsets': inline_formsets})
         else:
-            context['form'] = self.form_class(instance=self.object)
-            context['inline_formsets'] = [
-                formset_class(instance=self.object) for formset_class in self.inline_formset_classes
-            ]
-        return context
+            # If no pk is provided, treat this as a create view
+            form = self.form_class()
+            inline_formsets = form.get_inline_formsets()
+            return render(request, self.template_name, {'form': form, 'inline_formsets': inline_formsets})
 
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        context = self.get_context_data()
-        inline_formsets = context['inline_formsets']
-
-        if all(formset.is_valid() for formset in inline_formsets):
-            for formset in inline_formsets:
-                formset.save()
-            return response
+    def post(self, request, *args, **kwargs):
+        if 'pk' in kwargs:
+            instance = self.model.objects.get(pk=kwargs['pk'])
+            form = self.form_class(data=request.POST, files=request.FILES, instance=instance)
         else:
-            return self.form_invalid(form)
+            form = self.form_class(data=request.POST, files=request.FILES)
+
+        if form.is_valid():
+            main_instance = form.save()
+            inline_formsets = form.get_inline_formsets(instance=main_instance, data=request.POST, files=request.FILES)
+            if all(formset.is_valid() for formset in inline_formsets):
+                for formset in inline_formsets:
+                    formset.save()
+                return redirect(self.success_url)
+
+        inline_formsets = form.get_inline_formsets(data=request.POST, files=request.FILES, instance=instance if 'pk' in kwargs else None)
+        return render(request, self.template_name if 'pk' not in kwargs else 'detail_or_update_template.html', {'form': form, 'inline_formsets': inline_formsets})
+
