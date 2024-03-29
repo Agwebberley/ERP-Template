@@ -35,12 +35,13 @@ class Command(BaseCommand):
         patterns = ""
         for model in models_list:
             model_name = model.__name__.lower()
+            model_name_n = model.__name__
             model_name_plural = model_name + 's'
             patterns += f"""
-path('{model_name_plural}/', {model_name.capitalize()}ListView.as_view(), name='{model_name}_list'),
-path('{model_name}/create/', {model_name.capitalize()}View.as_view(), name='{model_name}_create'),
-path('{model_name}/<int:pk>/update/', {model_name.capitalize()}View.as_view(), name='{model_name}_update'),
-path('{model_name}/<int:pk>/delete/', {model_name.capitalize()}DeleteView.as_view(), name='{model_name}_delete'),
+path('{model_name_plural}/', {model_name_n}ListView.as_view(), name='{model_name}_list'),
+path('{model_name}/create/', {model_name_n}View.as_view(), name='{model_name}_create'),
+path('{model_name}/<int:pk>/update/', {model_name_n}View.as_view(), name='{model_name}_update'),
+path('{model_name}/<int:pk>/delete/', {model_name_n}DeleteView.as_view(), name='{model_name}_delete'),
 """
         urls_content += patterns
         urls_content += "]"
@@ -49,4 +50,14 @@ path('{model_name}/<int:pk>/delete/', {model_name.capitalize()}DeleteView.as_vie
         urls_directory = os.path.join(settings.BASE_DIR, app_label)
         with open(os.path.join(urls_directory, 'urls.py'), 'w') as f:
             f.write(urls_content)
+        
+        # Register the generated URLs in the main urls.py file
+        urls_file = os.path.join(settings.BASE_DIR, settings.ROOT_URLCONF.split('.')[0], 'urls.py')
+        print(urls_file)
+        with open(urls_file, 'r') as f:
+            content = f.read()
+        if app_label not in content:
+            with open(urls_file, 'a') as f:
+                f.write(f"\nurlpatterns += path('{app_label}/', include('{app_label}.urls'))")
+
         print("URLs generated successfully!")

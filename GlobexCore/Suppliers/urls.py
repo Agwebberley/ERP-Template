@@ -3,8 +3,8 @@ from django.urls import path
 app_name = 'Suppliers'
 patterns = [
 
-path('suppliers/', SupplierListView.as_view(), name='supplier_list'),
-path('supplier/create/', SupplierView.as_view(), name='supplier_create'),
-path('supplier/<int:pk>/update/', SupplierView.as_view(), name='supplier_update'),
-path('supplier/<int:pk>/delete/', SupplierDeleteView.as_view(), name='supplier_delete'),
+path('suppliers/', supplierListView.as_view(), name='supplier_list'),
+path('supplier/create/', supplierView.as_view(), name='supplier_create'),
+path('supplier/<int:pk>/update/', supplierView.as_view(), name='supplier_update'),
+path('supplier/<int:pk>/delete/', supplierDeleteView.as_view(), name='supplier_delete'),
 ]
