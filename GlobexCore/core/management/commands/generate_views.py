@@ -3,7 +3,7 @@ from django.apps import apps
 from django.conf import settings
 import os
 
-IGNORED_APPS = ['admin', 'auth', 'contenttypes', 'sessions', 'messages', 'staticfiles', 'sites', 'auth', 'users', 'groups', 'permissions', 'logentry', 'contenttype', 'session', 'message', 'staticfile', 'site']
+IGNORED_APPS = ['admin', 'auth', 'contenttypes', 'sessions', 'messages', 'staticfiles', 'sites', 'auth', 'users', 'groups', 'permissions', 'logentry', 'contenttype', 'session', 'message', 'staticfile', 'site', 'core']
 
 def handle(self, **options):
         app_name = options['app']
@@ -50,13 +50,19 @@ class Command(BaseCommand):
         model_name = model.__name__
         form_class_name = f'{model_name}Form'  # Assuming a naming convention for form classes
         view_class_name = f'{model_name}View'
-        success_url = '/'  # Define how you want to set the success URL
+        success_url = ''  # Define how you want to set the success URL
 
         # Based on the MasterFormView class from base_views.py
         view_template = f"""
 class {view_class_name}(MasterFormView):
     model = {model_name}
     form_class = {form_class_name}
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        formsets = context['form'].formsets
+        inlineformset_verbose_names = [formset.verbose_name_plural.title() for formset in formsets]
+        context['inlineformset_verbose_names'] = inlineformset_verbose_names
+        return context
     success_url = reverse_lazy('{success_url}')
 
 class {model_name}ListView(MasterListView):

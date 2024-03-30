@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from django.apps import apps
 from django.conf import settings
 
-IGNORED_APPS = ['admin', 'auth', 'contenttypes', 'sessions', 'messages', 'staticfiles', 'sites', 'auth', 'users', 'groups', 'permissions', 'logentry', 'contenttype', 'session', 'message', 'staticfile', 'site']
+IGNORED_APPS = ['admin', 'auth', 'contenttypes', 'sessions', 'messages', 'staticfiles', 'sites', 'auth', 'users', 'groups', 'permissions', 'logentry', 'contenttype', 'session', 'message', 'staticfile', 'site', 'core']
 
 class Command(BaseCommand):
     help = 'Generates form classes with inline formsets for each model in the specified app'

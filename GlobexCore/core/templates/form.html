@@ -17,7 +17,6 @@
         <!-- Inline Formsets -->
         {% for inline_formset in inline_formsets %}
             <fieldset class="col-span-2">
-                <legend>{{ inline_formset.model._meta.verbose_name_plural }}</legend>
                 {{ inline_formset.management_form }}
                 {% for form in inline_formset %}
                     <div class="inline-formset">

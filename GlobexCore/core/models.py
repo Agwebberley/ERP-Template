@@ -7,3 +7,6 @@ class ModelPermissions(models.Model):
     can_read = models.BooleanField(default=True)
     can_update = models.BooleanField(default=True)
     can_delete = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.model_name
