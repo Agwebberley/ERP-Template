@@ -51,7 +51,7 @@ class MasterListView(ListView):
         context['model_fields'] = [field.name for field in self.model._meta.get_fields()]
         context['patterns'] = {'Update': f'{self.model.__name__.lower()}_update', 'Delete': f'{self.model.__name__.lower()}_delete'}
         context['h1'] = self.model.__name__ + 's'
-        context['bpattern'] = f'{self.model.__name__.lower()}_create'
+        context['bpattern'] = f'{self.model._meta.app_label}:{self.model.__name__.lower()}_create'
         context['bname'] = f'Create {self.model.__name__}'
         return context
 
