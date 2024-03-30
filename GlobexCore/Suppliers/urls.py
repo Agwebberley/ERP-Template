@@ -1,7 +1,7 @@
 from .views import supplierListView, supplierView, supplierDeleteView
 from django.urls import path
 app_name = 'Suppliers'
-patterns = [
+urlpatterns = [
 
 path('suppliers/', supplierListView.as_view(), name='supplier_list'),
 path('supplier/create/', supplierView.as_view(), name='supplier_create'),

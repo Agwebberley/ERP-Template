@@ -1,7 +1,7 @@
 from .views import CustomerListView, CustomerView, CustomerDeleteView
 from django.urls import path
 app_name = 'Customers'
-patterns = [
+urlpatterns = [
 
 path('customers/', CustomerListView.as_view(), name='customer_list'),
 path('customer/create/', CustomerView.as_view(), name='customer_create'),

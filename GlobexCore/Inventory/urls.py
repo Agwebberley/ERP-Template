@@ -1,7 +1,7 @@
 from .views import inventoryListView, inventoryView, inventoryDeleteView
 from django.urls import path
 app_name = 'Inventory'
-patterns = [
+urlpatterns = [
 
 path('inventorys/', inventoryListView.as_view(), name='inventory_list'),
 path('inventory/create/', inventoryView.as_view(), name='inventory_create'),

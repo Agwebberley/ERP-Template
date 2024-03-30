@@ -7,9 +7,3 @@ class supplierForm(MasterDetailForm):
 		model = supplier
 		fields = "__all__"
 
-parts = forms.inlineformset_factory(supplier, parts, form=supplierPartsFormSet, extra=1)
-class supplierPartsFormSet(forms.BaseInlineFormSet):
-	model = parts
-	fields = "__all__"
-	extra = 1
-

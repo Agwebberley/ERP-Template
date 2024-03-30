@@ -20,10 +20,10 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
-urlpatterns += path('Customers/', include('Customers.urls'))
-urlpatterns += path('core/', include('core.urls'))
-urlpatterns += path('Inventory/', include('Inventory.urls'))
-urlpatterns += path('Orders/', include('Orders.urls'))
-urlpatterns += path('Invoices/', include('Invoices.urls'))
-urlpatterns += path('Parts/', include('Parts.urls'))
-urlpatterns += path('Suppliers/', include('Suppliers.urls'))
+urlpatterns.append(path('Customers/', include('Customers.urls')))
+urlpatterns.append(path('', include('core.urls')))
+urlpatterns.append(path('Inventory/', include('Inventory.urls')))
+urlpatterns.append(path('Orders/', include('Orders.urls')))
+urlpatterns.append(path('Invoices/', include('Invoices.urls')))
+urlpatterns.append(path('Parts/', include('Parts.urls')))
+urlpatterns.append(path('Suppliers/', include('Suppliers.urls')))

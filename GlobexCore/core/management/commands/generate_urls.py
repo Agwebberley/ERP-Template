@@ -31,7 +31,7 @@ class Command(BaseCommand):
             model_name = model.__name__
             imports += f"from .views import {model_name}ListView, {model_name}View, {model_name}DeleteView\n"
         urls_content += imports
-        urls_content += "from django.urls import path\napp_name = '" + app_label + "'\npatterns = [\n"
+        urls_content += "from django.urls import path\napp_name = '" + app_label + "'\nurlpatterns = [\n"
         patterns = ""
         for model in models_list:
             model_name = model.__name__.lower()
@@ -58,6 +58,6 @@ path('{model_name}/<int:pk>/delete/', {model_name_n}DeleteView.as_view(), name='
             content = f.read()
         if app_label not in content:
             with open(urls_file, 'a') as f:
-                f.write(f"\nurlpatterns += path('{app_label}/', include('{app_label}.urls'))")
+                f.write(f"\nurlpatterns.append(path('{app_label}/', include('{app_label}.urls')))")
 
         print("URLs generated successfully!")

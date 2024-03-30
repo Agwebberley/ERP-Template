@@ -2,7 +2,7 @@ from .views import orderDetailsListView, orderDetailsView, orderDetailsDeleteVie
 from .views import orderHeadersListView, orderHeadersView, orderHeadersDeleteView
 from django.urls import path
 app_name = 'Orders'
-patterns = [
+urlpatterns = [
 
 path('orderdetailss/', orderDetailsListView.as_view(), name='orderdetails_list'),
 path('orderdetails/create/', orderDetailsView.as_view(), name='orderdetails_create'),

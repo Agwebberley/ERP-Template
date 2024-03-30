@@ -1,7 +1,7 @@
 from .views import partsListView, partsView, partsDeleteView
 from django.urls import path
 app_name = 'Parts'
-patterns = [
+urlpatterns = [
 
 path('partss/', partsListView.as_view(), name='parts_list'),
 path('parts/create/', partsView.as_view(), name='parts_create'),

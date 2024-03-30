@@ -2,7 +2,7 @@ from .views import invoiceDetailsListView, invoiceDetailsView, invoiceDetailsDel
 from .views import invoiceHeadersListView, invoiceHeadersView, invoiceHeadersDeleteView
 from django.urls import path
 app_name = 'Invoices'
-patterns = [
+urlpatterns = [
 
 path('invoicedetailss/', invoiceDetailsListView.as_view(), name='invoicedetails_list'),
 path('invoicedetails/create/', invoiceDetailsView.as_view(), name='invoicedetails_create'),
