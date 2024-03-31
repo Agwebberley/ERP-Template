@@ -1,0 +1,12 @@
+/* Transition animation for when the menu pop out or goes back in */
+.menu {
+    transition: transform 0.3s ease-in-out;
+}
+
+.menu-open {
+    transform: translateX(0);
+}
+
+.menu-closed {
+    transform: translateX(-100%);
+}

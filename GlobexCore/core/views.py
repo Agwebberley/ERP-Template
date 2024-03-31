@@ -4,4 +4,4 @@ from core.base_views import MasterFormView, MasterDeleteView, MasterListView
 
 # Index view
 def index(request):
-    return render(request, 'index.html')
+    return render(request, 'home/index.html')
