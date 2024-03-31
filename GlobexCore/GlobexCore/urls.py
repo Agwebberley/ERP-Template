@@ -19,10 +19,12 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", include("authentication.urls")), # Auth routes - login / register
+    path('', include('authentication.urls')), # Auth routes - login / register
+    path('', include('core.urls'))
 ]
+
+
 urlpatterns.append(path('Customers/', include('Customers.urls')))
-urlpatterns.append(path('', include('core.urls')))
 urlpatterns.append(path('Inventory/', include('Inventory.urls')))
 urlpatterns.append(path('Orders/', include('Orders.urls')))
 urlpatterns.append(path('Invoices/', include('Invoices.urls')))

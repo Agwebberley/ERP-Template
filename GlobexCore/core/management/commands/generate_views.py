@@ -37,7 +37,7 @@ class Command(BaseCommand):
     
     def generate_views(self, models, app_label):
         views_content = ""
-        views_content += f"from django.shortcuts import render, redirect\nfrom django.urls import reverse_lazy\nfrom .forms import *\nfrom core.base_views import MasterFormView, MasterDeleteView, MasterListView\n"
+        views_content += f"from django.shortcuts import render, redirect\nfrom django.urls import reverse_lazy\nfrom .forms import *\nfrom core.base_views import MasterCreateView, MasterUpdateView, MasterDeleteView, MasterListView\n"
         for model in models:
             views_content += self.generate_view_for_model(model, app_label)
         
@@ -49,20 +49,18 @@ class Command(BaseCommand):
     def generate_view_for_model(self, model, app_label):
         model_name = model.__name__
         form_class_name = f'{model_name}Form'  # Assuming a naming convention for form classes
-        view_class_name = f'{model_name}View'
         success_url = ''  # Define how you want to set the success URL
 
         # Based on the MasterFormView class from base_views.py
         view_template = f"""
-class {view_class_name}(MasterFormView):
+class {model_name}CreateView(MasterCreateView):
     model = {model_name}
     form_class = {form_class_name}
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        formsets = context['form'].formsets
-        inlineformset_verbose_names = [formset.verbose_name_plural.title() for formset in formsets]
-        context['inlineformset_verbose_names'] = inlineformset_verbose_names
-        return context
+    success_url = reverse_lazy('{success_url}')
+
+class {model_name}UpdateView(MasterUpdateView):
+    model = {model_name}
+    form_class = {form_class_name}
     success_url = reverse_lazy('{success_url}')
 
 class {model_name}ListView(MasterListView):

@@ -29,7 +29,7 @@ class Command(BaseCommand):
         models_list = list(models)  # Convert models to a list
         for model in models_list:
             model_name = model.__name__
-            imports += f"from .views import {model_name}ListView, {model_name}View, {model_name}DeleteView\n"
+            imports += f"from .views import {model_name}ListView, {model_name}CreateView, {model_name}UpdateView, {model_name}DeleteView\n"
         urls_content += imports
         urls_content += "from django.urls import path\napp_name = '" + app_label + "'\nurlpatterns = [\n"
         patterns = ""
@@ -39,8 +39,8 @@ class Command(BaseCommand):
             model_name_plural = model_name + 's'
             patterns += f"""
 path('{model_name_plural}/', {model_name_n}ListView.as_view(), name='{model_name}_list'),
-path('{model_name}/create/', {model_name_n}View.as_view(), name='{model_name}_create'),
-path('{model_name}/<int:pk>/update/', {model_name_n}View.as_view(), name='{model_name}_update'),
+path('{model_name}/create/', {model_name_n}CreateView.as_view(), name='{model_name}_create'),
+path('{model_name}/<int:pk>/update/', {model_name_n}UpdateView.as_view(), name='{model_name}_update'),
 path('{model_name}/<int:pk>/delete/', {model_name_n}DeleteView.as_view(), name='{model_name}_delete'),
 """
         urls_content += patterns
