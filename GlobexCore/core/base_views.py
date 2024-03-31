@@ -1,6 +1,7 @@
-from django.urls import reverse_lazy
+from django.urls import Resolver404, resolve, reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import DetailView, ListView
+from core.models import ModelPermissions
 
 from django.shortcuts import render, redirect
 
@@ -53,6 +54,20 @@ class MasterListView(ListView):
         context['h1'] = self.model.__name__ + 's'
         context['bpattern'] = f'{self.model._meta.app_label}:{self.model.__name__.lower()}_create'
         context['bname'] = f'Create {self.model.__name__}'
+
+        # Navigation bar
+        # For each model, we want to display a link to the list view if the read permission is granted
+        # The permission is checked by checking core.ModelPermissions.<model_name>.read
+        context['models'] = []
+        for model in ModelPermissions.objects.all():
+            model_app, model_name = model.model_name.split('.')
+            model_permissions = model.can_read
+            model_url = f'{model_app}:{model_name.lower()}_list'
+            # Check if the url is valid
+            if model_permissions:
+                print(model_name)
+                context['models'].append((model_name, model_url))
+
         return context
 
 class MasterDeleteView(DeleteView):

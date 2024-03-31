@@ -5,8 +5,7 @@ from core.models import ModelPermissions
 import os
 
 
-IGNORED_APPS = ['admin', 'auth', 'contenttypes', 'sessions', 'messages', 'staticfiles', 'sites', 'auth', 'users', 'groups', 'permissions', 'logentry', 'contenttype', 'session', 'message', 'staticfile', 'site']
-
+IGNORED_APPS = settings.IGNORED_APPS
 # For each model, generate a permission for each CRUD operation
 class Command(BaseCommand):
     help = 'Generates permissions for the specified app'

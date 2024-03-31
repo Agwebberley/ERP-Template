@@ -30,6 +30,8 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+IGNORED_APPS = ['admin', 'auth', 'contenttypes', 'sessions', 'messages', 'staticfiles', 'sites', 'auth', 'users', 'groups', 'permissions', 'logentry', 'contenttype', 'session', 'message', 'staticfile', 'site', 'core']
+
 INSTALLED_APPS = [
     'Customers',
     'core',
