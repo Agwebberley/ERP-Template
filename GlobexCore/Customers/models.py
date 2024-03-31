@@ -2,7 +2,6 @@ from django.db import models
 
 
 class Customer(models.Model):
-    CustomerID = models.IntegerField(primary_key=True)
     CompanyName = models.CharField(max_length=255)
     ContactName = models.CharField(max_length=255)
     ContactTitle = models.CharField(max_length=255)

@@ -3,7 +3,6 @@ from Parts.models import parts
 
 
 class invoiceDetails(models.Model):
-    InvoiceDetailID = models.IntegerField(primary_key=True)
     InvoiceID = models.IntegerField()
     Description = models.TextField()
     Quantity = models.IntegerField()
@@ -16,7 +15,6 @@ class invoiceDetails(models.Model):
 
 
 class invoiceHeaders(models.Model):
-    InvoiceID = models.IntegerField(primary_key=True)
     OrderID = models.IntegerField()
     CustomerID = models.IntegerField()
     InvoiceDate = models.DateTimeField()

@@ -3,7 +3,6 @@ from Parts.models import parts
 
 
 class inventory(models.Model):
-    InventoryID = models.IntegerField(primary_key=True)
     LocationID = models.IntegerField()
     QuantityOnHand = models.IntegerField()
     AverageCost = models.IntegerField()

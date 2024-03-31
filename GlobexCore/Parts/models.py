@@ -3,7 +3,6 @@ from Suppliers.models import supplier
 
 
 class parts(models.Model):
-    PartID = models.IntegerField(primary_key=True)
     PartName = models.CharField(max_length=255)
     Description = models.TextField()
     CatagoryID = models.IntegerField()

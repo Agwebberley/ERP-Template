@@ -3,7 +3,6 @@ from Parts.models import parts
 
 
 class orderDetails(models.Model):
-    OrderDetailID = models.IntegerField(primary_key=True)
     Quantity = models.IntegerField()
     UnitPrice = models.FloatField()
     LineTotal = models.CharField(max_length=255)
@@ -13,7 +12,6 @@ class orderDetails(models.Model):
 
 
 class orderHeaders(models.Model):
-    OrderID = models.IntegerField(primary_key=True)
     CustomerID = models.IntegerField()
     OrderDate = models.DateTimeField()
     RequiredDate = models.DateTimeField()
