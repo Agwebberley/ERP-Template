@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from django.apps import apps
 from django.conf import settings
 
-IGNORED_APPS = ['admin', 'auth', 'contenttypes', 'sessions', 'messages', 'staticfiles', 'sites', 'auth', 'users', 'groups', 'permissions', 'logentry', 'contenttype', 'session', 'message', 'staticfile', 'site', 'core']
+IGNORED_APPS = settings.IGNORED_APPS
 
 class Command(BaseCommand):
     help = 'Generates form classes with inline formsets for each model in the specified app'
@@ -28,7 +28,7 @@ class Command(BaseCommand):
         os.makedirs(forms_directory, exist_ok=True)
 
         with open(os.path.join(forms_directory, 'forms.py'), 'w') as f:
-            f.write("from django import forms\nfrom core.base_forms import MasterDetailForm\nfrom .models import *\n\n")
+            f.write("from django import forms\nfrom core.base_forms import MasterDetailForm\nfrom core.models import ModelMeta, FieldMeta\nfrom .models import *\n\n")
 
             formset_definitions = ""  # Move the declaration of formset_definitions outside of the for loop
             inline_formsets = []  # Create an empty list to store the inline formsets
@@ -48,7 +48,18 @@ class Command(BaseCommand):
                             formset_definitions += inline_formset_definition
                             inline_formsets.append(inline_formset_name)
 
-                form_class_definition = f'class {form_class_name}(MasterDetailForm):\n\tclass Meta:\n\t\tmodel = {model_name}\n\t\tfields = "__all__"\n\n{"".join([f"{related_model.related_model.__name__} = forms.inlineformset_factory({model_name}, {related_model.related_model.__name__}, form={inline_formset_name}, extra=1, fields='__all__')\n" for related_model, inline_formset_name in zip(related_models, inline_formsets)])}'
+                form_class_definition = f'''
+class {form_class_name}(MasterDetailForm):
+    class Meta:
+        model = {model_name}
+        try:
+            fields = [field.field_name for field in FieldMeta.objects.filter(model=ModelMeta.objects.get(model_name=model._meta.app_label + "." + model.__name__)) if not field.form_hidden]
+        except:
+            fields = '__all__'
+            print("WARNING: Could not retrieve fields for {model_name}. Using '__all__' instead.")
+
+{"".join([f"{related_model.related_model.__name__} = forms.inlineformset_factory({model_name}, {related_model.related_model.__name__}, form={inline_formset_name}, extra=1, fields='__all__')\n" for related_model, inline_formset_name in zip(related_models, inline_formsets)])}
+'''
 
                 f.write(formset_definitions)  # Write formset definitions first
                 f.write(form_class_definition)  # Then write form class definitions

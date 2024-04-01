@@ -20,7 +20,7 @@ def flush_database():
 
 def flush_urls():
     # remove everything in the main urls.py file after the ']' character
-    urls_path = os.path.join(os.getcwd(), 'GlobexCore/urls.py')
+    urls_path = os.path.join(os.getcwd(), '/GlobexCore/urls.py')
     if os.path.exists(urls_path):
         with open(urls_path, 'r') as f:
             lines = f.readlines()
