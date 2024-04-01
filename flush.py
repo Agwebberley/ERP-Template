@@ -33,3 +33,21 @@ def flush_urls():
         print("URLs flushed successfully")
     else:
         print("urls.py file not found")
+
+def flush_both():
+    flush_database()
+    flush_urls()
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("Usage: python flush.py [database|urls|both]")
+    else:
+        command = sys.argv[1]
+        if command == 'database':
+            flush_database()
+        elif command == 'urls':
+            flush_urls()
+        elif command == 'both':
+            flush_both()
+        else:
+            print("Invalid command")
