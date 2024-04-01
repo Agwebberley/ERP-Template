@@ -43,3 +43,4 @@ class Command(BaseCommand):
             if permission.model_name not in models:
                 permission.delete()
                 print(f"Permissions for {permission.model_name} deleted successfully")
+    

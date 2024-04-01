@@ -93,6 +93,3 @@ class MasterDeleteView(DeleteView, NavigationMixin):
         context['object_name'] = str(object)
         context['pattern'] = f'{self.model.__name__.lower()}_list'
         return context
-
-
-
