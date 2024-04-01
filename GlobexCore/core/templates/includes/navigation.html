@@ -124,8 +124,11 @@
                                 Settings</a></li>
                             <li><a href="/profile.html" class="dropdown-item"><i class="feather icon-user"></i>
                                 Profile</a></li>
-                            <li><a href="{% url 'logout' %}" class="dropdown-item">
-                                <i class="feather icon-lock"></i> Logout</a>
+                            <li>
+                                    <a onclick="event.preventDefault();
+                                    document.getElementById('magic-form').submit();" href="#"  class="dropdown-item">
+                                        <i class="feather icon-lock"></i> Logout
+                                    </a>
                             </li>
                         </ul>
                     </div>
@@ -135,3 +138,7 @@
     </div>
 </header>
 <!-- [ Header ] end -->
+<form id="magic-form" action="{% url 'logout' %}" 
+      method="POST" style="display: none;">
+      {% csrf_token %} <!-- from your framework -->
+</form>

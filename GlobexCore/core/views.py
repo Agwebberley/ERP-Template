@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from core.models import ModelPermissions
+from django.contrib.auth.decorators import login_required
+
 # Index view
+@login_required(login_url="/login/")
 def index(request):
     context = {}  # Define the context variable
     context['models'] = {}  # Initialize the models dictionary
