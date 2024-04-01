@@ -19,6 +19,9 @@ class ModelMeta(models.Model):
 
     def __str__(self):
         return self.model_name
+    
+    def get_fields(self):
+        return FieldMeta.objects.filter(model=self)
 
 class FieldMeta(models.Model):
     field_name = models.CharField(max_length=255)
