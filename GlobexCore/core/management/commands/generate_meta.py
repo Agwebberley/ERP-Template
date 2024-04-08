@@ -3,6 +3,7 @@ from django.apps import apps
 from django.conf import settings
 from core.models import ModelMeta, FieldMeta
 import os
+import json
 
 IGNORED_APPS = settings.IGNORED_APPS
 
@@ -10,53 +11,52 @@ class Command(BaseCommand):
     help = 'Generates meta information for the specified app'
 
     def add_arguments(self, parser):
-        parser.add_argument('app', nargs='?', default="*", type=str, help="App label of the application to auto-generate meta information for")
+        parser.add_argument('file', nargs='?', default="*", type=str, help="The name of the file to generate the meta information for. If not specified, all files will be generated.")
 
     def handle(self, **options):
-        app_name = options['app']
-        if app_name == '*':
-            app_configs = apps.get_app_configs()
-            app_configs = [app for app in app_configs if app.label not in IGNORED_APPS]
+        file = options['file']
+        if file == "*":
+            # For every file in the schema folder
+            for file in os.listdir("schemas"):
+                self.generate_meta("schemas/" + file)
         else:
-            app_configs = [apps.get_app_config(app_name)]
+            # Make sure the file exists
+            if os.path.exists(f"schemas/{file}"):
+                file = "schemas/" + file
+                self.generate_meta(file)
         
-        for app_config in app_configs:
-            models = app_config.get_models()
-            self.generate_meta(models, app_config.label)
     
-    def generate_meta(self, models, app_label):
-        for model in models:
-            model_name = model.__name__
-            model_meta, created = ModelMeta.objects.get_or_create(model_name=f"{app_label}.{model_name}")
-            if not created:
-                continue
-            model_meta.model_verbose_name = model._meta.verbose_name
-            model_meta.model_verbose_name_plural = model._meta.verbose_name_plural
-            model_meta.model_icon = 'fa fa-cube'
-            model_meta.save()
-            print(f"Meta information for {model_meta.model_name} created successfully")
-            
-            for field in model._meta.get_fields():
-                """
-                field_name = models.CharField(max_length=255)
-                field_verbose_name = models.CharField(max_length=255)
-                form_hidden = models.BooleanField(default=False)
-                list_hidden = models.BooleanField(default=False)
-                field_type = models.CharField(max_length=255)
-                field_default = models.CharField(max_length=255)
-                model = models.ForeignKey(ModelMeta, on_delete=models.CASCADE)
-                """
-                field_meta, created = FieldMeta.objects.get_or_create(field_name=field.name, model=model_meta)
-                if not created:
-                    continue
-                # If the relationship is ManyToOneRel, verbose_name is not available
-                if hasattr(field, 'verbose_name'):
-                    field_meta.field_verbose_name = field.verbose_name
-                    field_meta.field_default = field.default
-                else:
-                    field_meta.field_verbose_name = field.name
-                field_meta.form_hidden = False
-                field_meta.list_hidden = False
-                field_meta.field_type = field.get_internal_type()
-                field_meta.save()
-                print(f"Meta information for {field_meta.field_name} created successfully")
+    def generate_meta(self, models):
+        # Check for a json file in the schemas folder
+
+        # Load the json file
+        with open(models) as f:
+            data = json.load(f)
+        
+        # Create a model meta object for each model
+        for app_name, app in data.items():
+            for model_name, model in app.items():
+                model_meta, created = ModelMeta.objects.get_or_create(
+                    model_name=f"{app_name}.{model_name}",
+                    defaults={
+                        'model_verbose_name': model_name,
+                        'model_verbose_name_plural': model_name,
+                        'model_icon': "fa fa-table"
+                    }
+                )
+
+                # Create a field meta object for each field
+                for field in model['columns']:
+                    field_name, field_info = list(field.items())[0]
+                    field_meta, _ = FieldMeta.objects.get_or_create(
+                        model=model_meta,
+                        field_name=field_name,
+                        defaults={
+                            'field_verbose_name': field_name,
+                            'form_hidden': False,
+                            'list_hidden': False,
+                            'field_type': field_info[0],
+                            'model': model_meta
+                        }
+                    )
+

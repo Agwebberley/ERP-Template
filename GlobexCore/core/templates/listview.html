@@ -57,30 +57,20 @@
                                     {% endwith %}
                                 {% endfor %}
                                 {% if patterns|length >= 1 %}
-                                <td >
-                                    <div >
-                                        {% with pk=item|get_field_value:'id' %}
-                                        <button id="dropdownDefault{{ pk }}" data-dropdown-toggle="dropdown{{ pk }}" >Actions
-                                            <svg >
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                            </svg>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                                            Actions
                                         </button>
-
-                                        <!-- Dropdown menu -->
-
-                                        <div id="dropdown{{ pk }}" >
-                                            <ul >
-                                                {% for name, pattern in patterns.items %}
-                                                <li>
-                                                    <a href="{% url pattern pk %}" >{{ name }}</a>
-                                                </li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
-                                    </div>                                     
+                                        <ul class="dropdown-menu" data-theme="dark">
+                                            {% for name, pattern in patterns.items %}
+                                            <li class="">
+                                                <a class="dropdown-item" href="{% url pattern item.pk %}">{{ name }}</a>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
                                 </td>
-
-                                {% endwith %}
                                 {% endif %}
                             </tr>
                         {% endfor %}

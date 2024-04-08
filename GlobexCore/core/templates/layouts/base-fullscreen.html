@@ -1,50 +1,70 @@
+<!--
+=========================================================
+* Soft UI Dashboard - v1.0.6
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/soft-ui-dashboard
+* Copyright 2022 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT (https://www.creative-tim.com/license)
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
 <!DOCTYPE html>
 <html lang="en">
+{% load static %}
 
 <head>
-    <title>
-{% block title %}{% endblock %}
-    </title>
-    <!-- HTML5 Shim and Respond.js IE10 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 10]>
-		<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-		<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-		<![endif]-->
-    <!-- Meta -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="{% static 'img/apple-icon.png' %}">
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
 
-    <!-- Favicon icon -->
-    <link rel="icon" href="{{ ASSETS_ROOT }}/images/favicon.ico" type="image/x-icon">
-    <!-- fontawesome icon -->
-    <link rel="stylesheet" href="{{ ASSETS_ROOT }}/fonts/fontawesome/css/fontawesome-all.min.css">
-    <!-- animation css -->
-    <link rel="stylesheet" href="{{ ASSETS_ROOT }}/plugins/animation/css/animate.min.css">
-    <!-- vendor css -->
-    <link rel="stylesheet" href="{{ ASSETS_ROOT }}/css/style.css">
-    <!-- dark mode css -->
-    <link rel="stylesheet" href="{{ ASSETS_ROOT }}/css/dark.css">
+  <title>
+    Soft UI Dashboard - {% block title %}{% endblock %} | AppSeed
+  </title>
 
-    <!-- Specific CSS goes HERE -->
-    {% block stylesheets %}{% endblock stylesheets %}
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <!-- Nucleo Icons -->
+  <link href="{% static 'css/nucleo-icons.css' %}" rel="stylesheet" />
+  <link href="{% static 'css/nucleo-svg.css' %}" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <link href="{% static 'css/nucleo-svg.css' %}" rel="stylesheet" />
+  <!-- CSS Files -->
+  <link id="pagestyle" href="{% static 'css/soft-ui-dashboard.css' %}" rel="stylesheet" />
+  <link id="pagestyle_dark" href="{% static 'css/dark-theme-core.css' %}" rel="stylesheet" />
+
+  <!-- Specific CSS goes HERE -->
+  {% block stylesheets %}{% endblock stylesheets %}
 
 </head>
-<body>
-    
-    {% block content %}{% endblock content %}
+<body class="">
 
-    <!-- Enable the dark mode -->
-    <label class="d-none">
-        <i class="icon feather icon-sun" id="theme-indicator"></i>
-        <input type="checkbox" id="theme-switch" class="d-none">
-    </label>
+  {% block content %}{% endblock content %}
 
-    {% include 'includes/scripts.html' %}
+  {% include "includes/scripts.html" %}
 
-    <!-- Specific Page JS goes HERE  -->
-    {% block javascripts %}{% endblock javascripts %}    
+  <!-- Specific JS goes HERE --> 
+  {% block scripts %}{% endblock scripts %}
+
+  <script>
+    var win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+      var options = {
+        damping: '0.5'
+      }
+      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    }
+  </script>
+
+  <!-- Github buttons -->
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+  <script src="{% static 'js/soft-ui-dashboard.min.js' %}"></script>
 
 </body>
 </html>

@@ -1,0 +1,660 @@
+{
+    "Parts": {
+        "parts": {
+            "columns": [
+                {
+                    "PartName": [
+                        "VARCHAR",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Description": [
+                        "TEXT",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "CatagoryID": [
+                        "INTEGER",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Price": [
+                        "FLOAT",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Cost": [
+                        "FLOAT",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "MinimumStockLevel": [
+                        "INTEGER",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "ReorderQuantity": [
+                        "INTEGER",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "LeadTime": [
+                        "INTEGER",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                }
+            ],
+            "relationships": [
+                {
+                    "SupplierID": [
+                        "Suppliers",
+                        "supplier",
+                        "0..*"
+                    ]
+                }
+            ]
+        }
+    },
+    "Invoices": {
+        "invoiceDetails": {
+            "columns": [
+                {
+                    "InvoiceID": [
+                        "INTEGER",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Description": [
+                        "TEXT",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Quantity": [
+                        "INTEGER",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "UnitPrice": [
+                        "FLOAT",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "LineTotal": [
+                        "FLOAT",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Discount": [
+                        "FLOAT",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "TaxRate": [
+                        "FLOAT",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "TaxAmount": [
+                        "FLOAT",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                }
+            ],
+            "relationships": [
+                {
+                    "PartID": [
+                        "Parts",
+                        "parts",
+                        "0..*"
+                    ]
+                }
+            ]
+        },
+        "invoiceHeaders": {
+            "columns": [
+                {
+                    "OrderID": [
+                        "INTEGER",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "CustomerID": [
+                        "INTEGER",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "InvoiceDate": [
+                        "DATETIME",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "DueDate": [
+                        "DATETIME",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "TotalAmount": [
+                        "FLOAT",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Status": [
+                        "VARCHAR",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "TaxAmount": [
+                        "FLOAT",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "DiscountAmount": [
+                        "FLOAT",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "ShippingAmount": [
+                        "INTEGER",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "PaymentTerms": [
+                        "TEXT",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Notes": [
+                        "TEXT",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                }
+            ],
+            "relationships": []
+        }
+    },
+    "Orders": {
+        "orderDetails": {
+            "columns": [
+                {
+                    "Quantity": [
+                        "INTEGER",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "UnitPrice": [
+                        "FLOAT",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "LineTotal": [
+                        "Float",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Status": [
+                        "VARCHAR",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                }
+            ],
+            "relationships": [
+                {
+                    "PartID": [
+                        "Parts",
+                        "parts",
+                        "0..*"
+                    ]
+                },
+                {
+                    "OrderID": [
+                        "Orders",
+                        "orderHeaders",
+                        "0..*"
+                    ]
+                }
+            ]
+        },
+        "orderHeaders": {
+            "columns": [
+                {
+                    "CustomerID": [
+                        "INTEGER",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "OrderDate": [
+                        "DATETIME",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "RequiredDate": [
+                        "DATETIME",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "ShipDate": [
+                        "DATETIME",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Status": [
+                        "VARCHAR",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "ShippingMethod": [
+                        "VARCHAR",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "FrieghtCharge": [
+                        "FLOAT",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "TaxAmount": [
+                        "FLOAT",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "TotalAmount": [
+                        "FLOAT",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "PaymentReceived": [
+                        "BOOLEAN",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Notes": [
+                        "TEXT",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                }
+            ],
+            "relationships": []
+        }
+    },
+    "Inventory": {
+        "inventory": {
+            "columns": [
+                {
+                    "LocationID": [
+                        "INTEGER",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "QuantityOnHand": [
+                        "INTEGER",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "AverageCost": [
+                        "INTEGER",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "LastReceivedDate": [
+                        "DATETIME",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Status": [
+                        "VARCHAR",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                }
+            ],
+            "relationships": [
+                {
+                    "PartID": [
+                        "Parts",
+                        "parts",
+                        "0..*"
+                    ]
+                }
+            ]
+        }
+    },
+    "Customers": {
+        "Customer": {
+            "columns": [
+                {
+                    "CompanyName": [
+                        "VARCHAR",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "ContactName": [
+                        "VARCHAR",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "ContactTitle": [
+                        "VARCHAR",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Address": [
+                        "VARCHAR",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "City": [
+                        "VARCHAR",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "State": [
+                        "VARCHAR",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "PostalCode": [
+                        "INTEGER",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Phone": [
+                        "INTEGER",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Email": [
+                        "VARCHAR",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "IsActive": [
+                        "BOOLEAN",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Notes": [
+                        "TEXT",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                }
+            ],
+            "relationships": []
+        }
+    },
+    "Suppliers": {
+        "supplier": {
+            "columns": [
+                {
+                    "CompanyName": [
+                        "VARCHAR",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "ContactTitle": [
+                        "VARCHAR",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Address": [
+                        "VARCHAR",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "IsActive": [
+                        "BOOLEAN",
+                        0,
+                        false,
+                        false,
+                        false
+                    ]
+                },
+                {
+                    "Notes": [
+                        "TEXT",
+                        255,
+                        false,
+                        false,
+                        false
+                    ]
+                }
+            ],
+            "relationships": []
+        }
+    }
+}

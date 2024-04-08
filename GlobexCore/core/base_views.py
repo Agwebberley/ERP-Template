@@ -79,7 +79,7 @@ class MasterListView(NavigationMixin, ListView):
         model_meta = ModelMeta.objects.get(model_name=self.model._meta.app_label + "." + self.model.__name__)
 
         context['model_fields'] = [field.field_name for field in model_meta.get_fields() if not field.list_hidden]
-        context['patterns'] = {'Update': f'{self.model.__name__.lower()}_update', 'Delete': f'{self.model.__name__.lower()}_delete'}
+        context['patterns'] = {'Update': f'{self.model._meta.app_label}:{self.model.__name__.lower()}_update', 'Delete': f'{self.model._meta.app_label}:{self.model.__name__.lower()}_delete'}
         context['h1'] = model_meta.model_verbose_name_plural.capitalize()
         context['bpattern'] = f'{self.model._meta.app_label}:{self.model.__name__.lower()}_create'
         context['bname'] = f'Create {model_meta.model_verbose_name.capitalize()}'
