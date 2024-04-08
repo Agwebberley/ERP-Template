@@ -34,6 +34,29 @@ def flush_urls():
     else:
         print("urls.py file not found")
 
+def flush_admin():
+    # Remove all admin.py files unless they are in INGORDED_APPS
+    # Open the settings.py file and get the INGORDED_APPS
+    settings_path = os.path.join(os.getcwd(), 'GlobexCore/GlobexCore/settings.py')
+
+    if os.path.exists(settings_path):
+        with open(settings_path, 'r') as f:
+            lines = f.readlines()
+        for line in lines:
+            if 'IGNORED_APPS' in line:
+                ignored_apps = line.split('=')[1].strip()
+                break
+        ignored_apps = ignored_apps[1:-1].split(',')
+        # Get all the apps in the project
+        apps_path = os.path.join(os.getcwd(), 'GlobexCore')
+        apps = os.listdir(apps_path)
+        # Remove the admin.py file for each app
+        for app in apps:
+            if app not in ignored_apps and os.path.exists(os.path.join(apps_path, app, 'admin.py')):
+                os.remove(os.path.join(apps_path, app, 'admin.py'))
+        print("Admin files flushed successfully")
+
+
 def flush_both():
     flush_database()
     flush_urls()
@@ -49,5 +72,7 @@ if __name__ == '__main__':
             flush_urls()
         elif command == 'both':
             flush_both()
+        elif command == 'admin':
+            flush_admin()
         else:
             print("Invalid command")
