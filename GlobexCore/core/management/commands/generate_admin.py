@@ -29,7 +29,7 @@ class Command(BaseCommand):
 
         with open(os.path.join(admin_directory, 'admin.py'), 'w') as f:
             f.write("from django.contrib import admin\n")
-            f.write("from core.models import ModelMeta, FieldMeta\nfrom .models import *\n\n")
+            f.write("from core.models import App, Model, Field\nfrom .models import *\n\n")
 
             for model in models:
                 model_name = model.__name__
@@ -42,7 +42,8 @@ class {admin_class_name}(admin.ModelAdmin):
     @property
     def list_display(self):
         try:
-            return [field.field_name for field in FieldMeta.objects.filter(model=ModelMeta.objects.get(model_name=self.model._meta.app_label + "." + self.model.__name__)) if not field.list_hidden]
+            app = App.objects.get(app_name=self.model._meta.app_label)
+            return [field.field_name for field in Field.objects.filter(model=Model.objects.get(model_name=self.model.__name__, app=app)) if not field.list_hidden]
         except Exception:
             return ['__str__']  # Default to '__str__' if an error occurs
 

@@ -19,15 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls')),
     path('', include('admin_soft.urls')),
 
 ]
-
-
-urlpatterns.append(path('Customers/', include('Customers.urls')))
-urlpatterns.append(path('Inventory/', include('Inventory.urls')))
-urlpatterns.append(path('Orders/', include('Orders.urls')))
-urlpatterns.append(path('Invoices/', include('Invoices.urls')))
-urlpatterns.append(path('Parts/', include('Parts.urls')))
-urlpatterns.append(path('Suppliers/', include('Suppliers.urls')))
