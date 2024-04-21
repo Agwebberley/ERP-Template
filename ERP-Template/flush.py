@@ -20,7 +20,7 @@ def flush_database():
 
 def flush_urls():
     # remove everything in the main urls.py file after the ']' character
-    urls_path = os.path.join(os.getcwd(), 'GlobexCore/urls.py')
+    urls_path = os.path.join(os.getcwd(), 'ERP-Template/urls.py')
     if os.path.exists(urls_path):
         with open(urls_path, 'r') as f:
             lines = f.readlines()
@@ -63,7 +63,7 @@ def flush_forms():
 def flush_views():
     # Remove all views.py files unless they are in INGORDED_APPS
     # Open the settings.py file and get the INGORDED_APPS
-    settings_path = os.path.join(os.getcwd(), 'GlobexCore/settings.py')
+    settings_path = os.path.join(os.getcwd(), 'ERP-Template/settings.py')
 
     ignored_apps = get_ignored_apps()
     # Get all the apps in the project
@@ -77,7 +77,7 @@ def flush_views():
     print("Views files flushed successfully")
 
 def get_ignored_apps():
-    settings_path = os.path.join(os.getcwd(), 'GlobexCore/settings.py')
+    settings_path = os.path.join(os.getcwd(), 'ERP-Template/settings.py')
 
     if os.path.exists(settings_path):
         with open(settings_path, 'r') as f:
