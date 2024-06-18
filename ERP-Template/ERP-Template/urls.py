@@ -17,6 +17,7 @@ Including another URLconf
 # project/urls.py
 from django.urls import path, include
 
+
 urlpatterns = [
     path('api/', include('generated_urls')),  # Include the generated URLs
 ]
