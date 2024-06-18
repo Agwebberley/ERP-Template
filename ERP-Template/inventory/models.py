@@ -6,5 +6,6 @@ class part(models.Model):
     description = models.TextField()
     price = models.CharField(max_length=255)
     stock_quantity = models.IntegerField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
