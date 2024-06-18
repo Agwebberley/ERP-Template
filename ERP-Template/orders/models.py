@@ -16,5 +16,5 @@ class order_item(models.Model):
     unit_price = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    order_id = models.ForeignKey('order', on_delete=models.CASCADE)
+    order_id = models.ForeignKey('order', on_delete=models.CASCADE, related_name='order_item', blank=True, null=True)
     part_id = models.ForeignKey(part, on_delete=models.CASCADE)
