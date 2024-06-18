@@ -21,12 +21,15 @@ class Command(BaseCommand):
                 model_name = model.__name__
                 viewset_content = f'''
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 from {app_label}.models import {model_name}
 from {app_label}.serializers.{model_name.lower()}_serializer import {model_name}Serializer
 
 class {model_name}ViewSet(viewsets.ModelViewSet):
     queryset = {model_name}.objects.all()
     serializer_class = {model_name}Serializer
+    permission_classes = [IsAuthenticated]
+
 '''
                 with open(os.path.join(views_dir, f'{model_name.lower()}_viewset.py'), 'w') as f:
                     f.write(viewset_content)
