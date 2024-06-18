@@ -38,6 +38,9 @@ IGNORED_APPS = ['admin', 'auth', 'contenttypes', 'sessions', 'messages', 'static
 INSTALLED_APPS = [
     'core',
     'authentication',
+    'customers',
+    'inventory',
+    'orders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
