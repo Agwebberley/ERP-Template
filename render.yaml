@@ -3,8 +3,8 @@ services:
     name: ERP-Template
     runtime: python
     plan: free
-    buildCommand: pip install -r requirements.txt
     rootDir: ERP-Template
+    buildCommand: "./setup.sh"
     startCommand: gunicorn ERP-Template.wsgi --log-file -
     envVars:
       - key: DJANGO_SETTINGS_MODULE
