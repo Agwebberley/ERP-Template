@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-*x94-xr4db_81kog*syb5o!tlgo)6)r@ib(&$0amfca=tr-=#q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['erp-template.onrender.com']
 
 CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
