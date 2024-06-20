@@ -30,15 +30,26 @@ class orderSerializer(serializers.ModelSerializer):
         instance.save()
 
         # Handle order items
+        existing_order_items = list(instance.order_item.all())
+        updated_order_items = []
+
         for item_data in order_items_data:
             order_item_id = item_data.get('id')
             if order_item_id:
-                order_item = order_item.objects.get(id=order_item_id, order=instance)
-                order_item.part_id = item_data.get('part_id', order_item.part_id)
-                order_item.quantity = item_data.get('quantity', order_item.quantity)
-                order_item.save()
+                order_item_obj = order_item.objects.get(id=order_item_id, order=instance)
+                order_item_obj.part_id = item_data.get('part_id', order_item_obj.part_id)
+                order_item_obj.quantity = item_data.get('quantity', order_item_obj.quantity)
+                order_item_obj.save()
+                updated_order_items.append(order_item_obj)
             else:
-                order_item.objects.create(order_id=instance, **item_data)
+                item_data.pop('order_id', None)
+                new_order_item = order_item.objects.create(**item_data, order_id=instance)
+                updated_order_items.append(new_order_item)
+
+        # Remove any order items that were not included in the updated order_items_data
+        for existing_item in existing_order_items:
+            if existing_item not in updated_order_items:
+                existing_item.delete()
         
         return instance
 
