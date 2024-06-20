@@ -146,8 +146,13 @@ WSGI_APPLICATION = 'ERP-Template.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# Replace the SQLite DATABASES configuration with PostgreSQL:
 DATABASES = {
-    'default': dj_database_url.config(conn_max_age=600)
+    'default': dj_database_url.config(
+        # Replace this value with your local database's connection string.
+        default='postgresql://djangorestdb_jl9c_user:WGKJS5NmaguTocpimck3zbVnNtJTQMsi@dpg-cpq9achu0jms738rv7r0-a/djangorestdb_jl9c',
+        conn_max_age=600
+    )
 }
 
 # Password validation
