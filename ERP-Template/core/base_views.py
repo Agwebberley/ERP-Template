@@ -1,7 +1,6 @@
 from django.urls import Resolver404, resolve, reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import DetailView, ListView
-from core.models import ModelPermissions, ModelMeta, FieldMeta
 
 from django.shortcuts import render, redirect
 

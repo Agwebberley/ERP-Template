@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}My Model List{% endblock %}
+
+{% block content %}
+    <h1>{% block list_title %}My Model List{% endblock %}</h1>
+    {% block list_table %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    {% block table_headers %}
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Actions</th>
+                    {% endblock %}
+                </tr>
+            </thead>
+            <tbody>
+                {% block table_body %}
+                    {% for object in object_list %}
+                    <tr>
+                        <td>{{ object.id }}</td>
+                        <td>{{ object.name }}</td>
+                        <td>
+                            <a href="{% url 'mymodel-detail' object.pk %}" class="btn btn-info btn-sm">View</a>
+                            <a href="{% url 'mymodel-update' object.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="{% url 'mymodel-delete' object.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% endblock %}
+            </tbody>
+        </table>
+    {% endblock %}
+    <a href="{% url 'mymodel-create' %}" class="btn btn-primary">{% block add_new_button_text %}Add New{% endblock %}</a>
+{% endblock %}
