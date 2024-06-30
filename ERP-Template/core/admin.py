@@ -1,56 +1,21 @@
 from django.contrib import admin
-from core.models import App, Model, Field
-from .models import *
+from .models import AppConfiguration, ModelConfiguration, FieldConfiguration
 
+@admin.register(AppConfiguration)
+class AppConfigurationAdmin(admin.ModelAdmin):
+    list_display = ['name', 'description']
+    search_fields = ['name']
 
-class AppAdmin(admin.ModelAdmin):
-    model = App
+@admin.register(ModelConfiguration)
+class ModelConfigurationAdmin(admin.ModelAdmin):
+    list_display = ['app', 'model_name', 'enable_search', 'list_title']
+    search_fields = ['model_name']
+    list_filter = ['app']
+    filter_horizontal = ['read_permission_groups', 'read_permission_users', 'write_permission_groups', 'write_permission_users']
 
-    @property
-    def list_display(self):
-        try:
-            app = App.objects.get(app_name=self.model._meta.app_label)
-            return [field.field_name for field in Field.objects.filter(model=Model.objects.get(model_name=self.model.__name__, app=app)) if not field.list_hidden]
-        except Exception:
-            return ['__str__']  # Default to '__str__' if an error occurs
-
-admin.site.register(App, AppAdmin)
-
-class ModelAdmin(admin.ModelAdmin):
-    model = Model
-
-    @property
-    def list_display(self):
-        try:
-            app = App.objects.get(app_name=self.model._meta.app_label)
-            return [field.field_name for field in Field.objects.filter(model=Model.objects.get(model_name=self.model.__name__, app=app)) if not field.list_hidden]
-        except Exception:
-            return ['__str__']  # Default to '__str__' if an error occurs
-
-admin.site.register(Model, ModelAdmin)
-
-class FieldAdmin(admin.ModelAdmin):
-    model = Field
-
-    @property
-    def list_display(self):
-        try:
-            app = App.objects.get(app_name=self.model._meta.app_label)
-            return [field.field_name for field in Field.objects.filter(model=Model.objects.get(model_name=self.model.__name__, app=app)) if not field.list_hidden]
-        except Exception:
-            return ['__str__']  # Default to '__str__' if an error occurs
-
-admin.site.register(Field, FieldAdmin)
-
-class ModelPermissionsAdmin(admin.ModelAdmin):
-    model = ModelPermissions
-
-    @property
-    def list_display(self):
-        try:
-            app = App.objects.get(app_name=self.model._meta.app_label)
-            return [field.field_name for field in Field.objects.filter(model=Model.objects.get(model_name=self.model.__name__, app=app)) if not field.list_hidden]
-        except Exception:
-            return ['__str__']  # Default to '__str__' if an error occurs
-
-admin.site.register(ModelPermissions, ModelPermissionsAdmin)
+@admin.register(FieldConfiguration)
+class FieldConfigurationAdmin(admin.ModelAdmin):
+    list_display = ['model', 'field_name', 'enable_in_list', 'enable_in_show', 'display_name']
+    search_fields = ['field_name']
+    list_filter = ['model']
+    filter_horizontal = ['read_permission_groups', 'read_permission_users', 'write_permission_groups', 'write_permission_users']

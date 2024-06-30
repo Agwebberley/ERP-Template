@@ -33,14 +33,13 @@ CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Application definition
 
-IGNORED_APPS = ['admin', 'auth', 'contenttypes', 'sessions', 'messages', 'staticfiles', 'sites', 'auth', 'users', 'groups', 'permissions', 'logentry', 'contenttype', 'session', 'message', 'staticfile', 'site', 'crispy_forms', 'authentication', 'crispy_bootstrap5', 'admin_soft']
+CUSTOM_APPS = [
+    'core',
+]
 
 INSTALLED_APPS = [
     'core',
     'authentication',
-    'customers',
-    'inventory',
-    'orders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

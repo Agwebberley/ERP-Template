@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ config.list_title }}</h1>
+
+    <!-- Main model details -->
+    <div class="main-model-details">
+        <h2>{{ object }}</h2>
+        <table class="table">
+            <tbody>
+                {% for field in enabled_fields %}
+                    <tr>
+                        <th>{{ field|capfirst }}</th>
+                        <td>{{ object|get_field_value:field }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Tabs for related models -->
+    <ul class="nav nav-tabs" id="masterDetailTabs" role="tablist">
+        {% for related in related_models %}
+            <li class="nav-item">
+                <a class="nav-link {% if forloop.first %}active{% endif %}" id="{{ related.name }}-tab" data-toggle="tab" href="#{{ related.name }}" role="tab" aria-controls="{{ related.name }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                    {{ related.name|capfirst }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+    <div class="tab-content" id="masterDetailTabsContent">
+        {% for related in related_models %}
+            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="{{ related.name }}" role="tabpanel" aria-labelledby="{{ related.name }}-tab">
+                <h3>{{ related.name|capfirst }}</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            {% for field in related.fields %}
+                                <th>{{ field|capfirst }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for related_obj in related.objects %}
+                            <tr>
+                                {% for field in related.fields %}
+                                    <td>{{ related_obj|get_field_value:field }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
