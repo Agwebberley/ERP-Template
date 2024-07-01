@@ -34,7 +34,7 @@ class Command(BaseCommand):
                     defaults={
                         'enable_search': True,
                         'list_title': f'{model_name} List',
-                        'default_sort_by': 'id'
+                        'default_sort_by': 'id',
                     }
                 )
                 if created:

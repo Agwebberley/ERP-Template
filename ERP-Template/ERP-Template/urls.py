@@ -17,13 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from inventory.urls import urlpatterns as inventory_urls
+from customers.urls import urlpatterns as customers_urls
 from core.urls import urlpatterns as core_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(core_urls)),
     path('inventory/', include(inventory_urls)),
+    path('customers/', include(customers_urls)),
     path('accounts/', include('django.contrib.auth.urls')),
-
-
 ]

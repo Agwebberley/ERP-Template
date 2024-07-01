@@ -14,7 +14,8 @@
         <a class="navbar-brand" href="{% url 'home' %}">My Django App</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item"><a class="nav-link" href="{% url 'part-list' %}">My Model List</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'part-list' %}">Parts</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'customer-list' %}">Customers</a></li>
             </ul>
             <ul class="navbar-nav ml-auto">
                 {% block user_menu %}

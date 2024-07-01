@@ -36,11 +36,13 @@ CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CUSTOM_APPS = [
     'core',
     'inventory',
+    'customers',
 ]
 
 INSTALLED_APPS = [
     'core',
     'inventory',
+    'customers',
     'authentication',
     'django.contrib.admin',
     'django.contrib.auth',
