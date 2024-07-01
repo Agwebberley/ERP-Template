@@ -1,24 +1,33 @@
 {% extends "base.html" %}
 
-{% block title %}My Model Detail{% endblock %}
+{% load utils %}
+
+{% block title %}{{ config.model_name }} Details{% endblock %}
 
 {% block content %}
-    <h1>{% block detail_title %}My Model Detail{% endblock %}</h1>
-    {% block detail_table %}
-        <table class="table table-bordered">
-            {% block detail_rows %}
-                <tr>
-                    <th>ID</th>
-                    <td>{{ object.id }}</td>
-                </tr>
-                <tr>
-                    <th>Name</th>
-                    <td>{{ object.name }}</td>
-                </tr>
-                <!-- Add more fields as needed -->
-            {% endblock %}
-        </table>
-    {% endblock %}
-    <a href="{% url 'mymodel-update' object.pk %}" class="btn btn-warning">Edit</a>
-    <a href="{% url 'mymodel-list' %}" class="btn btn-secondary">Back to List</a>
+<div class="container mt-5">
+    <h1>{{ config.model_name }} Details</h1>
+    <div class="card">
+        <div class="card-header">
+            <h2>{{ object }}</h2>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <tbody>
+                    {% for field in enabled_fields %}
+                        <tr>
+                            <th>{{ field|capfirst }}</th>
+                            <td>{{ object|get_field_value:field }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer">
+            <a href="{% url return_url %}" class="btn btn-secondary">Back to List</a>
+            <a href="{% url edit_url object.pk %}" class="btn btn-primary">Edit</a>
+            <a href="{% url delete_url object.pk %}" class="btn btn-danger">Delete</a>
+        </div>
+    </div>
+</div>
 {% endblock %}

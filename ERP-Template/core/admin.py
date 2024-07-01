@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import AppConfiguration, ModelConfiguration, FieldConfiguration
+from .models import AppConfiguration, ModelConfiguration, FieldConfiguration, ModelAction
 
 @admin.register(AppConfiguration)
 class AppConfigurationAdmin(admin.ModelAdmin):
@@ -13,9 +13,16 @@ class ModelConfigurationAdmin(admin.ModelAdmin):
     list_filter = ['app']
     filter_horizontal = ['read_permission_groups', 'read_permission_users', 'write_permission_groups', 'write_permission_users']
 
+
 @admin.register(FieldConfiguration)
 class FieldConfigurationAdmin(admin.ModelAdmin):
     list_display = ['model', 'field_name', 'enable_in_list', 'enable_in_show', 'display_name']
     search_fields = ['field_name']
     list_filter = ['model']
     filter_horizontal = ['read_permission_groups', 'read_permission_users', 'write_permission_groups', 'write_permission_users']
+
+@admin.register(ModelAction)
+class ModelActionAdmin(admin.ModelAdmin):
+    list_display = ['name', 'pattern', 'action_type']
+    search_fields = ['name']
+    list_filter = ['action_type']

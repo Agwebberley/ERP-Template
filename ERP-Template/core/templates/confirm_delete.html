@@ -8,6 +8,6 @@
     <form method="post">
         {% csrf_token %}
         <button type="submit" class="btn btn-danger">{% block confirm_delete_button_text %}Yes, delete{% endblock %}</button>
-        <a href="{% url 'mymodel-list' %}" class="btn btn-secondary">{% block cancel_button_text %}Cancel{% endblock %}</a>
+        <a href="{% url return_url %}" class="btn btn-secondary">{% block cancel_button_text %}Cancel{% endblock %}</a>
     </form>
 {% endblock %}

@@ -1,9 +1,10 @@
 from django.views.generic import CreateView, UpdateView, ListView, DetailView, DeleteView
 from django.urls import reverse_lazy
+from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.apps import apps
 from .models import ModelConfiguration
-from .utils import get_enabled_fields, generate_dynamic_form
+from .utils import get_enabled_fields, generate_dynamic_form, get_actions
 
 class BaseCreateView(CreateView):
     template_name = 'form.html'
@@ -11,7 +12,17 @@ class BaseCreateView(CreateView):
     def get_form_class(self):
         # Dynamically get the form class based on the model
         model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
-        return generate_dynamic_form(model_config.model_name)
+        absolute_url = reverse_lazy(model_config.model_name.lower() + '-list')
+        return generate_dynamic_form(model_config.app.name, model_config.model_name, self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
+        context['config'] = model_config
+        context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user)
+        context['return_url'] = model_config.model_name.lower() + '-list'
+        return context
+
 
 class BaseUpdateView(UpdateView):
     template_name = 'form.html'
@@ -19,7 +30,15 @@ class BaseUpdateView(UpdateView):
     def get_form_class(self):
         # Dynamically get the form class based on the model
         model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
-        return generate_dynamic_form(model_config.model_name)
+        return generate_dynamic_form(model_config.app.name, model_config.model_name, self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
+        context['config'] = model_config
+        context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user)
+        context['return_url'] = model_config.model_name.lower() + '-list'
+        return context
 
 class BaseListView(ListView):
     template_name = 'list.html'
@@ -36,6 +55,7 @@ class BaseListView(ListView):
         model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
         context['config'] = model_config
         context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='list')
+        context['actions'] = get_actions(model_config.app.name, model_config.model_name)
         return context
 
 class BaseDetailView(DetailView):
@@ -46,11 +66,19 @@ class BaseDetailView(DetailView):
         model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
         context['config'] = model_config
         context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='show')
+        context['return_url'] = model_config.model_name.lower() + '-list'
+        context['edit_url'] = model_config.model_name.lower() + '-update'
+        context['delete_url'] = model_config.model_name.lower() + '-delete'
+
         return context
 
 class BaseDeleteView(DeleteView):
     template_name = 'confirm_delete.html'
-    success_url = reverse_lazy('model-list')
+    success_url = reverse_lazy('home')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['return_url'] = self.model.__name__.lower() + '-list'
+        return context
 
 class BaseMasterDetailView(DetailView):
     template_name = 'base_master_detail.html'
@@ -73,3 +101,6 @@ class BaseMasterDetailView(DetailView):
             })
 
         return context
+
+def home(request):
+    return render(request, 'home.html')

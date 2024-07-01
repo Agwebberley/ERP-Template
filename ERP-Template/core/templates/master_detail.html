@@ -17,6 +17,22 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        <!-- Actions Dropdown -->
+        {% if actions|length >= 1 %}
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                Actions
+            </button>
+            <ul class="dropdown-menu" data-theme="dark">
+                {% for action in actions %}
+                <li class="">
+                    <a class="dropdown-item" href="{% url action.url_pattern object.pk %}">{{ action.name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
     </div>
 
     <!-- Tabs for related models -->

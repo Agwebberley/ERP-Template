@@ -1,5 +1,6 @@
-from django import forms, template
+from django import forms
 from django.apps import apps
+from django.urls import get_resolver, get_urlconf
 from core.models import AppConfiguration, ModelConfiguration, FieldConfiguration
 
 def get_app_config(app_name):
@@ -71,10 +72,10 @@ def user_has_field_write_permission(user, field_config):
         return True
     return False
 
-def generate_dynamic_form(model_name):
-    model_class = apps.get_model(app_label='your_app_name', model_name=model_name)
-    config = get_model_config('YourApp', model_name)
-    enabled_fields = get_enabled_fields('YourApp', model_name, view_type='form')
+def generate_dynamic_form(app_name, model_name, user):
+    model_class = apps.get_model(app_label=app_name, model_name=model_name)
+    config = get_model_config(app_name, model_name)
+    enabled_fields = get_enabled_fields(app_name, model_name, user)
 
     class DynamicForm(forms.ModelForm):
         class Meta:
@@ -83,8 +84,14 @@ def generate_dynamic_form(model_name):
 
     return DynamicForm
 
-register = template.Library()
-
-@register.filter
-def get_field_value(instance, field_name):
-    return getattr(instance, field_name, '')
+def get_actions(app_name, model_name):
+    model_config = get_model_config(app_name, model_name)
+    actions = {'dropdown': [], 'button': []}
+    # Seperate dropdown actions from button actions
+    for action in model_config.actions.all():
+        if action.action_type == 'dropdown':
+            actions['dropdown'].append({'name': action.name, 'pattern': model_name.lower() + '-' + action.pattern})
+        if action.action_type == 'button':
+            actions['button'].append({'name': action.name, 'pattern': model_name.lower() + '-' + action.pattern})
+    print(actions)
+    return actions
