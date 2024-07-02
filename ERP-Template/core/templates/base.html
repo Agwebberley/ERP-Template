@@ -16,14 +16,22 @@
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item"><a class="nav-link" href="{% url 'part-list' %}">Parts</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'customer-list' %}">Customers</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'order-list' %}">Orders</a></li>
             </ul>
             <ul class="navbar-nav ml-auto">
                 {% block user_menu %}
                     {% if user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" hx-trigger="click" hx-post="{% url 'logout' %}">Logout</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" 
+                           hx-trigger="click" 
+                           hx-post="{% url 'logout' %}" 
+                           hx-swap="none" 
+                           id="logout-link">
+                            Logout
+                        </a>
+                    </li>
                     {% else %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
-
+                    <li class="nav-item"><a class="nav-link login" href="{% url 'login' %}">Login</a></li>
                     {% endif %}
                 {% endblock %}
             </ul>
@@ -37,5 +45,12 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     {% block extra_js %}{% endblock %}
+    <script>
+        document.addEventListener('htmx:afterOnLoad', function(event) {
+            if (event.detail.target.id === 'logout-link') {
+                window.location.reload(true);
+            }
+        });
+    </script>
 </body>
 </html>

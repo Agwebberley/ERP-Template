@@ -53,7 +53,7 @@ class Command(BaseCommand):
                         model=model_config_obj, field_name=field_name,
                         defaults={
                             'enable_in_list': True,
-                            'enable_in_show': True,
+                            'enable_in_detail': True,
                             'display_name': verbose_name,
                             'inherit_permissions': True,
                         }

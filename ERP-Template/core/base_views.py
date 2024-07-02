@@ -1,10 +1,13 @@
+from django.http import JsonResponse
+from django.views import View
 from django.views.generic import CreateView, UpdateView, ListView, DetailView, DeleteView
 from django.urls import reverse_lazy
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.shortcuts import get_object_or_404
 from django.apps import apps
 from .models import ModelConfiguration
-from .utils import get_enabled_fields, generate_dynamic_form, get_actions
+from .utils import generate_inline_formset, generate_model_form, get_enabled_fields, generate_dynamic_form, get_actions
+from django.contrib.auth.views import LoginView, LogoutView
 
 class BaseCreateView(CreateView):
     template_name = 'form.html'
@@ -102,5 +105,167 @@ class BaseMasterDetailView(DetailView):
 
         return context
 
+class MasterDetailCreateView(CreateView):
+    template_name = 'master_detail_form.html'
+    
+    def get(self, request, app_label, model_name):
+        parent_model = apps.get_model(app_label, model_name)
+        child_models = [rel.related_model for rel in parent_model._meta.related_objects]
+
+        parent_form_class = generate_model_form(app_label, parent_model.__name__.lower(), self.request.user)
+        parent_form = parent_form_class()
+        
+        child_formsets = []
+        for child_model in child_models:
+            formset_class = generate_inline_formset(app_label, parent_model, child_model, self.request.user)
+            formset = formset_class()
+            child_formsets.append((child_model._meta.verbose_name_plural, formset))
+
+        return render(request, self.template_name, {
+            'parent_form': parent_form,
+            'child_formsets': child_formsets,
+            'model_name': model_name,
+            'app_label': app_label,
+            'return_url': model_name.lower() + '-list'
+        })
+
+    def post(self, request, app_label, model_name):
+        parent_model = apps.get_model(app_label, model_name)
+        child_models = [rel.related_model for rel in parent_model._meta.related_objects]
+
+        parent_form_class = generate_model_form(app_label, parent_model.__name__.lower(), self.request.user)
+        parent_form = parent_form_class(request.POST)
+
+        child_formsets = []
+        formset_valid = True
+        for child_model in child_models:
+            formset_class = generate_inline_formset(app_label, parent_model, child_model, self.request.user)
+            formset = formset_class(request.POST)
+            child_formsets.append((child_model._meta.verbose_name_plural, formset))
+            if not formset.is_valid():
+                formset_valid = False
+
+        if parent_form.is_valid() and formset_valid:
+            parent_instance = parent_form.save()
+            for _, formset in child_formsets:
+                formset.instance = parent_instance
+                formset.save()
+            # Use success_url instead of redirect
+            return self.success_url
+
+        return render(request, self.template_name, {
+            'parent_form': parent_form,
+            'child_formsets': child_formsets,
+            'model_name': model_name,
+            'app_label': app_label,
+            'return_url': model_name.lower() + '-list'
+        })
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
+        context['config'] = model_config
+        context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='form')
+        context['return_url'] = model_config.model_name.lower() + '-list'
+        return context
+
+class MasterDetailUpdateView(UpdateView):
+    template_name = 'master_detail_form.html'
+    success_url = reverse_lazy('home')
+
+    def get(self, request, app_label, model_name, pk):
+        parent_model = apps.get_model(app_label, model_name)
+        instance = get_object_or_404(parent_model, pk=pk)
+        child_models = [rel.related_model for rel in parent_model._meta.related_objects]
+
+        parent_form_class = generate_model_form(app_label, parent_model.__name__.lower(), self.request.user)
+        parent_form = parent_form_class(instance=instance)
+        
+        child_formsets = []
+        for child_model in child_models:
+            formset_class = generate_inline_formset(app_label, parent_model, child_model, self.request.user)
+            formset = formset_class(instance=instance)
+            child_formsets.append((child_model._meta.verbose_name_plural, formset))
+
+        return render(request, self.template_name, {
+            'parent_form': parent_form,
+            'child_formsets': child_formsets,
+            'model_name': model_name,
+            'app_label': app_label,
+            'return_url': model_name.lower() + '-list'
+        })
+
+    def post(self, request, app_label, model_name, pk):
+        parent_model = apps.get_model(app_label, model_name)
+        instance = get_object_or_404(parent_model, pk=pk)
+        child_models = [rel.related_model for rel in parent_model._meta.related_objects]
+
+        parent_form_class = generate_model_form(app_label, model_name, self.request.user)
+        parent_form = parent_form_class(request.POST, instance=instance)
+        
+        child_formsets = []
+        formset_valid = True
+        for child_model in child_models:
+            formset_class = generate_inline_formset(app_label, parent_model, child_model, self.request.user)
+            formset = formset_class(request.POST, instance=instance)
+            child_formsets.append((child_model._meta.verbose_name_plural, formset))
+            if not formset.is_valid():
+                formset_valid = False
+
+        if parent_form.is_valid() and formset_valid:
+            parent_instance = parent_form.save()
+            for _, formset in child_formsets:
+                formset.instance = parent_instance
+                formset.save()
+            # Use success_url instead of redirect
+            return redirect(self.success_url)
+
+        return render(request, self.template_name, {
+            'parent_form': parent_form,
+            'child_formsets': child_formsets,
+            'model_name': model_name,
+            'app_label': app_label,
+            'return_url': model_name.lower() + '-list'
+        })
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
+        context['config'] = model_config
+        context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='form')
+        context['return_url'] = model_config.model_name.lower() + '-list'
+        return context
+
 def home(request):
     return render(request, 'home.html')
+
+class AddFormsetRowView(View):
+    def post(self, request, app_label, model_name):
+        parent_model = apps.get_model(app_label, model_name)
+        child_model_name = request.POST.get('child_model_name')
+        child_model = apps.get_model(app_label, child_model_name)
+
+        formset_class = generate_inline_formset(parent_model, child_model)
+        formset = formset_class()
+
+        form_idx = request.POST.get('form_idx')
+
+        new_form = formset.empty_form
+        new_form_html = new_form.as_p().replace('__prefix__', str(form_idx))
+
+        return JsonResponse({'form_html': new_form_html})
+
+class LoginView(LoginView):
+    template_name = 'form.html'
+    success_url = reverse_lazy('home')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Login'
+        context['saveOveride'] = 'Login'
+        context['hOveride'] = 'Login'
+        return context
+
+class LogoutView(LogoutView):
+    next_page = reverse_lazy('home')
+    template_name = 'home.html'

@@ -37,13 +37,14 @@ CUSTOM_APPS = [
     'core',
     'inventory',
     'customers',
+    'orders',
 ]
 
 INSTALLED_APPS = [
     'core',
     'inventory',
     'customers',
-    'authentication',
+    'orders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

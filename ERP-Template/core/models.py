@@ -14,7 +14,7 @@ class ModelAction(models.Model):
     # Enabled Pages
     enable_in_list = models.BooleanField(default=True)
     enable_in_detail = models.BooleanField(default=True)
-    
+
 
     def __str__(self):
         return self.name
@@ -48,7 +48,8 @@ class FieldConfiguration(models.Model):
     model = models.ForeignKey(ModelConfiguration, related_name='fields', on_delete=models.CASCADE)
     field_name = models.CharField(max_length=255)
     enable_in_list = models.BooleanField(default=True)
-    enable_in_show = models.BooleanField(default=True)
+    enable_in_detail = models.BooleanField(default=True)
+    enable_in_form = models.BooleanField(default=True)
     display_name = models.CharField(max_length=255, blank=True, null=True)
     inherit_permissions = models.BooleanField(default=True)
     read_permission_groups = models.ManyToManyField(Group, related_name='read_field_permissions', blank=True)

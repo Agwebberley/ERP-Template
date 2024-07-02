@@ -16,7 +16,7 @@ class ModelConfigurationAdmin(admin.ModelAdmin):
 
 @admin.register(FieldConfiguration)
 class FieldConfigurationAdmin(admin.ModelAdmin):
-    list_display = ['model', 'field_name', 'enable_in_list', 'enable_in_show', 'display_name']
+    list_display = ['model', 'field_name', 'enable_in_list', 'enable_in_detail', 'enable_in_form', 'display_name']
     search_fields = ['field_name']
     list_filter = ['model']
     filter_horizontal = ['read_permission_groups', 'read_permission_users', 'write_permission_groups', 'write_permission_users']

@@ -1,7 +1,8 @@
 from django import forms
 from django.apps import apps
-from django.urls import get_resolver, get_urlconf
 from core.models import AppConfiguration, ModelConfiguration, FieldConfiguration
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit, Layout, Field
 
 def get_app_config(app_name):
     try:
@@ -28,7 +29,9 @@ def get_enabled_fields(app_name, model_name, user, view_type='list'):
     for field_config in field_configs:
         if view_type == 'list' and field_config.enable_in_list and user_has_field_read_permission(user, field_config):
             enabled_fields.append(field_config.field_name)
-        elif view_type == 'show' and field_config.enable_in_show and user_has_field_read_permission(user, field_config):
+        elif view_type == 'detail' and field_config.enable_in_detail and user_has_field_read_permission(user, field_config):
+            enabled_fields.append(field_config.field_name)
+        elif view_type == 'form' and field_config.enable_in_form and user_has_field_write_permission(user, field_config):
             enabled_fields.append(field_config.field_name)
     return enabled_fields
 
@@ -75,7 +78,7 @@ def user_has_field_write_permission(user, field_config):
 def generate_dynamic_form(app_name, model_name, user):
     model_class = apps.get_model(app_label=app_name, model_name=model_name)
     config = get_model_config(app_name, model_name)
-    enabled_fields = get_enabled_fields(app_name, model_name, user)
+    enabled_fields = get_enabled_fields(app_name, model_name, user, view_type='form')
 
     class DynamicForm(forms.ModelForm):
         class Meta:
@@ -95,3 +98,22 @@ def get_actions(app_name, model_name):
             actions['button'].append({'name': action.name, 'pattern': model_name.lower() + '-' + action.pattern})
     print(actions)
     return actions
+
+def generate_model_form(app_name, model_name, user):
+    model_class = apps.get_model(app_label=app_name, model_name=model_name)
+    class GenericModelForm(forms.ModelForm):
+        class Meta:
+            model = model_class
+            fields = '__all__'
+
+        def __init__(self, *args, **kwargs):
+            super(GenericModelForm, self).__init__(*args, **kwargs)
+            self.helper = FormHelper()
+            self.helper.form_method = 'post'
+            self.helper.layout = Layout(*[Field(field_name) for field_name in self.fields])
+            self.helper.add_input(Submit('submit', 'Save'))
+    
+    return GenericModelForm
+
+def generate_inline_formset(app_label, parent_model, child_model, user):
+    return forms.inlineformset_factory(parent_model, child_model, form=generate_model_form(app_label, child_model.__name__.lower(), user), extra=1)
