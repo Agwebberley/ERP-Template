@@ -57,8 +57,11 @@ class BaseListView(ListView):
         search_query = self.request.GET.get('query', '')
         if search_query:
             q_objects = Q()
-            for field in get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='list'):
-                q_objects |= Q(**{field + '__icontains': search_query})
+            for field in get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='list', properties=False):
+                if not self.model._meta.get_field(field).is_relation:
+                    q_objects |= Q(**{field + '__icontains': search_query})
+                else:
+                    q_objects |= Q(**{field + '__name__icontains': search_query})
             queryset = queryset.filter(q_objects)
         if model_config.default_sort_by:
             queryset = queryset.order_by(model_config.default_sort_by)

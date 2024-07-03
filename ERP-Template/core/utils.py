@@ -23,7 +23,7 @@ def get_field_configs(app_name, model_name):
         return FieldConfiguration.objects.filter(model=model_config)
     return []
 
-def get_enabled_fields(app_name, model_name, user, view_type='list'):
+def get_enabled_fields(app_name, model_name, user, view_type='list', properties=True):
     model = apps.get_model(app_label=app_name, model_name=model_name)
     field_configs = get_field_configs(app_name, model_name)
     model_field_names = [field.name for field in model._meta.get_fields()]
@@ -38,7 +38,7 @@ def get_enabled_fields(app_name, model_name, user, view_type='list'):
                     enabled_fields.append(field_config.field_name)
                 elif view_type == 'form' and field_config.enable_in_form and user_has_field_write_permission(user, field_config):
                     enabled_fields.append(field_config.field_name)
-    if view_type != 'form':
+    if view_type != 'form' and properties:
         properties = [prop for prop in dir(model) if isinstance(getattr(model, prop), property)]
         enabled_fields += properties
             
