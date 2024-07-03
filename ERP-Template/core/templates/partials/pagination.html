@@ -1,0 +1,23 @@
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" hx-get="?page=1&query={{ search_query }}" hx-target="#table-container" hx-swap="outerHTML">First</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" hx-get="?page={{ page_obj.previous_page_number }}&query={{ search_query }}" hx-target="#table-container" hx-swap="outerHTML">Previous</a>
+            </li>
+        {% endif %}
+        <li class="page-item disabled">
+            <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        </li>
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" hx-get="?page={{ page_obj.next_page_number }}&query={{ search_query }}" hx-target="#table-container" hx-swap="outerHTML">Next</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" hx-get="?page={{ page_obj.paginator.num_pages }}&query={{ search_query }}" hx-target="#table-container" hx-swap="outerHTML">Last</a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>

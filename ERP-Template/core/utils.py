@@ -24,15 +24,24 @@ def get_field_configs(app_name, model_name):
     return []
 
 def get_enabled_fields(app_name, model_name, user, view_type='list'):
+    model = apps.get_model(app_label=app_name, model_name=model_name)
     field_configs = get_field_configs(app_name, model_name)
+    model_field_names = [field.name for field in model._meta.get_fields()]
     enabled_fields = []
     for field_config in field_configs:
-        if view_type == 'list' and field_config.enable_in_list and user_has_field_read_permission(user, field_config):
-            enabled_fields.append(field_config.field_name)
-        elif view_type == 'detail' and field_config.enable_in_detail and user_has_field_read_permission(user, field_config):
-            enabled_fields.append(field_config.field_name)
-        elif view_type == 'form' and field_config.enable_in_form and user_has_field_write_permission(user, field_config):
-            enabled_fields.append(field_config.field_name)
+        if field_config.field_name in model_field_names:
+            field = model._meta.get_field(field_config.field_name)
+            if not (field.auto_created or field.one_to_one or field.many_to_many):
+                if view_type == 'list' and field_config.enable_in_list and user_has_field_read_permission(user, field_config):
+                    enabled_fields.append(field_config.field_name)
+                elif view_type == 'detail' and field_config.enable_in_detail and user_has_field_read_permission(user, field_config):
+                    enabled_fields.append(field_config.field_name)
+                elif view_type == 'form' and field_config.enable_in_form and user_has_field_write_permission(user, field_config):
+                    enabled_fields.append(field_config.field_name)
+    if view_type != 'form':
+        properties = [prop for prop in dir(model) if isinstance(getattr(model, prop), property)]
+        enabled_fields += properties
+            
     return enabled_fields
 
 def user_has_model_read_permission(user, model_config):
@@ -96,7 +105,6 @@ def get_actions(app_name, model_name):
             actions['dropdown'].append({'name': action.name, 'pattern': model_name.lower() + '-' + action.pattern})
         if action.action_type == 'button':
             actions['button'].append({'name': action.name, 'pattern': model_name.lower() + '-' + action.pattern})
-    print(actions)
     return actions
 
 def generate_model_form(app_name, model_name, user):

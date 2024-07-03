@@ -16,7 +16,7 @@
                 <tbody>
                     {% for field in enabled_fields %}
                         <tr>
-                            <th>{{ field|capfirst }}</th>
+                            <th>{{ field|titlify }}</th>
                             <td>{{ object|get_field_value:field }}</td>
                         </tr>
                     {% endfor %}

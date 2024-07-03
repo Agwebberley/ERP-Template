@@ -8,6 +8,8 @@ from django.apps import apps
 from .models import ModelConfiguration
 from .utils import generate_inline_formset, generate_model_form, get_enabled_fields, generate_dynamic_form, get_actions
 from django.contrib.auth.views import LoginView, LogoutView
+from django.db.models import Q
+
 
 class BaseCreateView(CreateView):
     template_name = 'form.html'
@@ -23,6 +25,8 @@ class BaseCreateView(CreateView):
         model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
         context['config'] = model_config
         context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user)
+        if 'pk' in context['enabled_fields']:
+            context['enabled_fields'].remove('pk')
         context['return_url'] = model_config.model_name.lower() + '-list'
         return context
 
@@ -45,10 +49,17 @@ class BaseUpdateView(UpdateView):
 
 class BaseListView(ListView):
     template_name = 'list.html'
+    paginate_by = 10
 
     def get_queryset(self):
         model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
         queryset = self.model.objects.all()
+        search_query = self.request.GET.get('query', '')
+        if search_query:
+            q_objects = Q()
+            for field in get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='list'):
+                q_objects |= Q(**{field + '__icontains': search_query})
+            queryset = queryset.filter(q_objects)
         if model_config.default_sort_by:
             queryset = queryset.order_by(model_config.default_sort_by)
         return queryset
@@ -58,8 +69,16 @@ class BaseListView(ListView):
         model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
         context['config'] = model_config
         context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='list')
+        if 'pk' in context['enabled_fields']:
+            context['enabled_fields'].remove('pk')
         context['actions'] = get_actions(model_config.app.name, model_config.model_name)
+        context['search_query'] = self.request.GET.get('query', '')
         return context
+    
+    def render_to_response(self, context, **response_kwargs):
+        if self.request.htmx:
+            return render(self.request, 'partials/table_container.html', context)
+        return super().render_to_response(context, **response_kwargs)
 
 class BaseDetailView(DetailView):
     template_name = 'detail.html'
@@ -69,6 +88,8 @@ class BaseDetailView(DetailView):
         model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
         context['config'] = model_config
         context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='show')
+        if 'pk' in context['enabled_fields']:
+            context['enabled_fields'].remove('pk')
         context['return_url'] = model_config.model_name.lower() + '-list'
         context['edit_url'] = model_config.model_name.lower() + '-update'
         context['delete_url'] = model_config.model_name.lower() + '-delete'
@@ -84,26 +105,33 @@ class BaseDeleteView(DeleteView):
         return context
 
 class BaseMasterDetailView(DetailView):
-    template_name = 'base_master_detail.html'
+    template_name = 'master_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
         context['config'] = model_config
-        context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='show')
-        
-        # Handle related models and tabs
-        context['related_models'] = []
-        for related_model_name in model_config.related_models:
-            related_model_class = apps.get_model(app_label=model_config.app.name, model_name=related_model_name)
-            related_objects = related_model_class.objects.filter(**{f"{self.model.__name__.lower()}_id": self.object.id})
-            context['related_models'].append({
-                'name': related_model_name,
-                'objects': related_objects,
-                'fields': get_enabled_fields(model_config.app.name, related_model_name, self.request.user, view_type='list')
+        context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='detail')
+        if 'pk' in context['enabled_fields']:
+            context['enabled_fields'].remove('pk')
+        parent_model = self.model
+        child_models = [rel.related_model for rel in parent_model._meta.related_objects]
+
+        child_instances = []
+        for child_model in child_models:
+            child_instances.append({
+                'name': child_model._meta.verbose_name_plural,
+                'objects': child_model.objects.filter(**{parent_model._meta.model_name + '_id': self.object.pk}),
+                'fields': [field.name for field in child_model._meta.fields if field.name != parent_model._meta.model_name + '_id']
             })
+        
+        context['child_instances'] = child_instances
+        context['return_url'] = model_config.model_name.lower() + '-list'
+        context['edit_url'] = model_config.model_name.lower() + '-update'
+        context['delete_url'] = model_config.model_name.lower() + '-delete'
 
         return context
+
 
 class MasterDetailCreateView(CreateView):
     template_name = 'master_detail_form.html'
@@ -257,7 +285,7 @@ class AddFormsetRowView(View):
 
 class LoginView(LoginView):
     template_name = 'form.html'
-    success_url = reverse_lazy('home')
+    next_page = reverse_lazy('home')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

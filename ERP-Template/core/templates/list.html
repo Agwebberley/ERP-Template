@@ -6,46 +6,21 @@
     <h1>{{ config.list_title }}</h1>
 
     <!-- Create button -->
-    {% for action in actions.button %}
-        <a href="{% url action.pattern %}" class="btn btn-primary">{{ action.name }}</a>
-    {% endfor %}
-
-    <!-- Table for listing items -->
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                {% for field in enabled_fields %}
-                    <th>{{ field|capfirst }}</th>
-                {% endfor %}
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for obj in object_list %}
-                <tr>
-                    {% for field in enabled_fields %}
-                        <td>{{ obj|get_field_value:field }}</td>
-                    {% endfor %}
-                    <td>
-                        <!-- Actions Dropdown -->
-                        {% if actions.dropdown|length >= 1 %}
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Actions
-                            </button>
-                            <ul class="dropdown-menu" data-theme="dark">
-                                {% for action in actions.dropdown %}
-                                <li class="">
-                                    <a class="dropdown-item" href="{% url action.pattern obj.pk %}">{{ action.name }}</a>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        {% endif %}
-                    </td>
-                </tr>
+    <div class="row mb-3">
+        <div class="col-md-2">
+            {% for action in actions.button %}
+                <a href="{% url action.pattern %}" class="btn btn-primary">{{ action.name }}</a>
             {% endfor %}
-        </tbody>
-    </table>
+        </div>
+        <div class="col-md-10">
+            <form id="search-form" hx-get="." hx-target="#table-body" hx-trigger="keyup changed delay:500ms, search">
+                <input type="text" name="query" placeholder="Search" value="{{ search_query }}" class="form-control">
+            </form>
+        </div>
+    </div>
+    
 </div>
+
+{% include 'partials/table_container.html' %}
+
 {% endblock %}
