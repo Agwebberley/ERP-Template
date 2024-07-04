@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load utils %}
+
+{% block title %}{{ model_name|capfirst }} Form{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>{{ model_name|capfirst }} Form</h1>
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="card" id="tabs">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="formTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="parent-tab" data-toggle="tab" onclick="openTab(event, 'parent')" role="tab" aria-controls="parent" aria-selected="true" type="button">{{ model_name|capfirst }}</button>
+                    </li>
+                    {% for child_name, _ in child_formsets %}
+                    <li class="nav-item">
+                        <button class="nav-link" id="{{ child_name }}-tab" data-toggle="tab" onclick="openTab(event, '{{ child_name|slugify }}')" role="tab" aria-controls="{{ child_name }}" aria-selected="false" type="button">{{ child_name }}</button>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="formTabsContent">
+                    <div class="tab-pane fade show active" id="parent" role="tabpanel" aria-labelledby="parent-tab">
+                        {{ parent_form|crispy }}
+                    </div>
+                    {% for child_name, formset in child_formsets %}
+                    <div class="tab-pane fade show" id="{{ child_name|slugify }}" role="tabpanel" aria-labelledby="{{ child_name|slugify }}-tab">
+                        {{ formset.management_form|crispy }}
+                        <div id="formset-container-{{ child_name|slugify }}">
+                            {% for form in formset %}
+                                <div class="formset-row" id="formset-item-{{ child_name|slugify }}-{{ forloop.counter0 }}">{{ form|crispy }}
+                                    <button type="button" class="btn btn-danger delete-formset-item" onclick="{{ child_name|fformsets }}deleteFormsetItem('{{ child_name|slugify }}', this)" data-row-id="formset-item-{{ child_name|slugify }}-{{ forloop.counter0 }}">Delete</button>
+                                <br><br>
+                                </div>
+                                
+                            {% endfor %}
+                        </div>
+                        <button type="button" id="add-item-{{ child_name|slugify }}" class="btn btn-primary mt-3">Add {{ child_name|capfirst }}</button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Save</button>
+        <a href="{% url return_url %}" class="btn btn-secondary mt-3">Cancel</a>
+    </form>
+</div>
+<script>
+    function openTab(evt, tabName) {
+        // Declare all variables
+        var i, tabcontent, tablinks;
+      
+        // Get all elements with class="tabcontent" and hide them
+        tabcontent = document.getElementsByClassName("tab-pane");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+      
+        // Get all elements with class="tablinks" and remove the class "active"
+        tablinks = document.getElementsByClassName("tab-pane");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+
+        navLinks = document.getElementsByClassName("nav-link");
+        for (i = 0; i < navLinks.length; i++) {
+            navLinks[i].className = navLinks[i].className.replace(" active", "");
+        }
+      
+        // Show the current tab, and add an "active" class to the button that opened the tab
+        document.getElementById(tabName).style.display = "block";
+        document.getElementById(tabName).className += " active";
+        evt.currentTarget.className += " active";
+
+    }
+
+</script>
+<script>
+    {% for child_name, formset in child_formsets %}
+    var addButton = document.getElementById('add-item-{{ child_name|slugify }}');
+    if (addButton) {
+        addButton.addEventListener('click', function() {
+            console.log("Event triggered for {{ child_name|slugify }}");
+            var formIdxElement = document.getElementById('id_{{ child_name|fformsets }}_set-TOTAL_FORMS');
+            
+            if (formIdxElement) {
+                console.log("Form index element found for {{ child_name|slugify }}");
+                var formIdx = formIdxElement.value;
+                var newForm = document.getElementById('formset-container-{{ child_name|slugify }}').innerHTML.replace(/__prefix__/g, formIdx);
+                formIdxElement.value = parseInt(formIdx) + 1;
+                newForm = new DOMParser().parseFromString(newForm, 'text/html').body.firstChild;
+                // Set the id of the new formset item
+                newForm.id = 'formset-item-{{ child_name|slugify }}-' + formIdx;
+                // Set all names and ids of the children of the new formset item to include the new form index
+                var children = newForm.querySelectorAll('*');
+                for (var i = 0; i < children.length; i++) {
+                    if (children[i].name) {
+                        children[i].name = children[i].name.replace("0", formIdx);
+                    }
+                    if (children[i].id) {
+                        children[i].id = children[i].id.replace("0", formIdx);
+                    }
+                    if (children[i].className.includes('delete-formset-item')) {
+                        children[i].setAttribute('data-row-id', 'formset-item-{{ child_name|slugify }}-' + formIdx);
+                    }
+                }
+
+                document.getElementById('formset-container-{{ child_name|slugify }}').appendChild(newForm);
+            }
+        });
+    }
+    {% endfor %}
+</script>
+<script>
+// This script is used to delete formset items
+// Step one: Hide default:"DELETE" field
+// Check for divs with class "form-check" and id ending in DELETE
+var deleteFields = document.querySelectorAll('div.form-check[id$="DELETE"]');
+for (var i = 0; i < deleteFields.length; i++) {
+    deleteFields[i].style.display = 'none';
+}
+// Step two: Add an event listener to the button to delete the formset item
+{% for child_name, formset in child_formsets %}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Assuming 'formset-container-{{ child_name|slugify }}' is the parent container for all formset rows
+    var container = document.getElementById('formset-container-{{ child_name|slugify }}');
+    if (container) {
+        container.addEventListener('click', function(event) {
+            var targetElement = event.target;
+            // Check if the clicked element is a delete button
+            if (targetElement.classList.contains('delete-formset-item')) {
+                var rowId = targetElement.getAttribute('data-row-id');
+                var rowElement = document.getElementById(rowId);
+                if (rowElement) {
+                    // Assuming there's a hidden DELETE input in your formset that needs to be checked
+                    var deleteField = rowElement.querySelector('input[type="checkbox"][name$="DELETE"]');
+                    if (deleteField) {
+                        deleteField.checked = true;
+                    }
+                    rowElement.style.display = 'none'; // Or rowElement.remove(); to remove it from the DOM
+                }
+            }
+        });
+    }
+});
+{% endfor %}
+    </script>
+{% endblock %}

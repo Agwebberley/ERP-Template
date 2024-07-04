@@ -1,0 +1,222 @@
+{
+    "order": {
+        "columns": [
+            {
+                "order_date": [
+                    "DATETIME",
+                    0,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            {
+                "total_amount": [
+                    "DECIMAL",
+                    0,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            {
+                "status": [
+                    "VARCHAR",
+                    255,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            {
+                "created_at": [
+                    "DATETIME",
+                    0,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            {
+                "updated_at": [
+                    "DATETIME",
+                    0,
+                    false,
+                    false,
+                    false
+                ]
+            }
+        ],
+        "relationships": [
+            {
+                "customer_id": [
+                    "customer",
+                    "0..*"
+                ]
+            }
+        ]
+    },
+    "order_item": {
+        "columns": [
+            {
+                "quantity": [
+                    "INTEGER",
+                    0,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            {
+                "unit_price": [
+                    "Decimal",
+                    0,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            {
+                "created_at": [
+                    "DATETIME",
+                    0,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            {
+                "updated_at": [
+                    "DATETIME",
+                    0,
+                    false,
+                    false,
+                    false
+                ]
+            }
+        ],
+        "relationships": [
+            {
+                "order_id": [
+                    "order",
+                    "0..*"
+                ]
+            },
+            {
+                "part_id": [
+                    "part",
+                    "0..*"
+                ]
+            }
+        ]
+    },
+    "customer": {
+        "columns": [
+            {
+                "name": [
+                    "VARCHAR",
+                    255,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            {
+                "email": [
+                    "VARCHAR",
+                    255,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            {
+                "phone": [
+                    "INTEGER",
+                    0,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            {
+                "created_at": [
+                    "DATETIME",
+                    0,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            {
+                "updated_at": [
+                    "DATETIME",
+                    0,
+                    false,
+                    false,
+                    false
+                ]
+            }
+        ],
+        "relationships": []
+    },
+    "part": {
+        "columns": [
+            {
+                "name": [
+                    "VARCHAR",
+                    255,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            {
+                "description": [
+                    "TEXT",
+                    255,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            {
+                "price": [
+                    "DECIMAL",
+                    0,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            {
+                "stock_quantity": [
+                    "INTEGER",
+                    0,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            {
+                "created_at": [
+                    "DATETIME",
+                    0,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            {
+                "updated_at": [
+                    "DATETIME",
+                    0,
+                    false,
+                    false,
+                    false
+                ]
+            }
+        ],
+        "relationships": []
+    }
+}

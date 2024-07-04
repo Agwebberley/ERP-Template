@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load utils %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ config.list_title }}</h1>
+
+    <!-- Create button -->
+    <div class="row mb-3">
+        <div class="col-md-2">
+            {% for action in actions.button %}
+                <a href="{% url action.pattern %}" class="btn btn-primary">{{ action.name }}</a>
+            {% endfor %}
+        </div>
+        <div class="col-md-10">
+            <form id="search-form" hx-get="." hx-target="#table-body" hx-trigger="keyup changed delay:500ms, search">
+                <input type="text" name="query" placeholder="Search" value="{{ search_query }}" class="form-control">
+            </form>
+        </div>
+    </div>
+    
+</div>
+
+{% include 'partials/table_container.html' %}
+
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load utils %}
+{% block content %}
+
+<h1>{{ config.model_name }} Details</h1>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="parent-tab" data-toggle="tab" onclick="openTab(event, 'parent')" role="tab" aria-controls="main" aria-selected="true">{{ config.model_name }}</a>
+    </li>
+    {% for child in child_instances %}
+    <li class="nav-item">
+        <a class="nav-link" id="{{ child.name }}-tab" data-toggle="tab" onclick="openTab(event, '{{ child.name|slugify }}')" role="tab" aria-controls="{{ child.name }}" aria-selected="false">{{ child.name|titlify }}</a>
+    </li>
+    {% endfor %}
+</ul>
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="parent" role="tabpanel" aria-labelledby="main-tab">
+        <div class="row">
+            {% for field in enabled_fields %}
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header">{{ field|titlify }}</div>
+                    <div class="card-body">
+                        <p class="card-text">{{ object|get_field_value:field }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% for child in child_instances %}
+    <div class="tab-pane fade show" id="{{ child.name|slugify }}" role="tabpanel" aria-labelledby="{{ child.name }}-tab">
+        <table class="table">
+            <thead>
+                <tr>
+                {% for field in child.fields %}
+                    <th>{{ field|titlify }}</th>
+                {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+            {% for obj in child.objects %}
+                <tr>
+                {% for field in child.fields %}
+                    <td>{{ obj|get_field_value:field }}</td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+</div>
+<a href="{% url return_url %}" class="btn btn-secondary">Back</a>
+<a href="{% url edit_url object.pk %}" class="btn btn-primary">Edit</a>
+<a href="{% url delete_url object.pk %}" class="btn btn-danger">Delete</a>
+
+<script>
+    function openTab(evt, tabName) {
+        // Declare all variables
+        var i, tabcontent, tablinks;
+      
+        // Get all elements with class="tabcontent" and hide them
+        tabcontent = document.getElementsByClassName("tab-pane");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+      
+        // Get all elements with class="tablinks" and remove the class "active"
+        tablinks = document.getElementsByClassName("tab-pane");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+
+        navLinks = document.getElementsByClassName("nav-link");
+        for (i = 0; i < navLinks.length; i++) {
+            navLinks[i].className = navLinks[i].className.replace(" active", "");
+        }
+      
+        // Show the current tab, and add an "active" class to the button that opened the tab
+        document.getElementById(tabName).style.display = "block";
+        document.getElementById(tabName).className += " active";
+        evt.currentTarget.className += " active";
+
+    }
+
+</script>
+{% endblock %}

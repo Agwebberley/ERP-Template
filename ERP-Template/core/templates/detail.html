@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% load utils %}
+
+{% block title %}{{ config.model_name }} Details{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>{{ config.model_name }} Details</h1>
+    <div class="card">
+        <div class="card-header">
+            <h2>{{ object }}</h2>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <tbody>
+                    {% for field in enabled_fields %}
+                        <tr>
+                            <th>{{ field|titlify }}</th>
+                            <td>{{ object|get_field_value:field }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer">
+            <a href="{% url return_url %}" class="btn btn-secondary">Back to List</a>
+            <a href="{% url edit_url object.pk %}" class="btn btn-primary">Edit</a>
+            <a href="{% url delete_url object.pk %}" class="btn btn-danger">Delete</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

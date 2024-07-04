@@ -33,13 +33,17 @@ CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Application definition
 
-IGNORED_APPS = ['admin', 'auth', 'contenttypes', 'sessions', 'messages', 'staticfiles', 'sites', 'auth', 'users', 'groups', 'permissions', 'logentry', 'contenttype', 'session', 'message', 'staticfile', 'site', 'crispy_forms', 'authentication', 'crispy_bootstrap5', 'admin_soft']
+CUSTOM_APPS = [
+    'core',
+    'inventory',
+    'customers',
+    'orders',
+]
 
 INSTALLED_APPS = [
     'core',
-    'authentication',
-    'customers',
     'inventory',
+    'customers',
     'orders',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -49,7 +53,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "crispy_forms",
     "crispy_bootstrap5",
-    'admin_soft.apps.AdminSoftDashboardConfig',
+    "django_htmx",
+    "django_filters",
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -65,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 

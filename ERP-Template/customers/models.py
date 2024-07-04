@@ -1,9 +1,11 @@
 from django.db import models
 
-
-class customer(models.Model):
+# Create your models here.
+class Customer(models.Model):
     name = models.CharField(max_length=255)
-    email = models.CharField(max_length=255)
-    phone = models.IntegerField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    email = models.EmailField()
+    phone = models.CharField(max_length=255)
+    address = models.TextField()
+    
+    def __str__(self):
+        return self.name

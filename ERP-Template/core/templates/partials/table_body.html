@@ -1,0 +1,28 @@
+<!-- partials/table_body.html -->
+ {% load utils %}
+<tbody id="table-body">
+    {% for obj in page_obj %}
+        <tr>
+            {% for field in enabled_fields %}
+                <td>{{ obj|get_field_value:field }}</td>
+            {% endfor %}
+            <td>
+                <!-- Actions Dropdown -->
+                {% if actions.dropdown|length >= 1 %}
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Actions
+                    </button>
+                    <ul class="dropdown-menu" data-theme="dark">
+                        {% for action in actions.dropdown %}
+                        <li>
+                            <a class="dropdown-item" href="{% url action.pattern obj.pk %}">{{ action.name }}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+</tbody>
