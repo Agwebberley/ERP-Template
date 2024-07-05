@@ -12,16 +12,18 @@
             <h2>{{ object }}</h2>
         </div>
         <div class="card-body">
-            <table class="table table-striped">
-                <tbody>
-                    {% for field in enabled_fields %}
-                        <tr>
-                            <th>{{ field|titlify }}</th>
-                            <td>{{ object|get_field_value:field }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="row">
+                {% for field in enabled_fields %}
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header">{{ field|titlify }}</div>
+                        <div class="card-body">
+                            <p class="card-text">{{ object|get_field_value:field }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
         <div class="card-footer">
             <a href="{% url return_url %}" class="btn btn-secondary">Back to List</a>

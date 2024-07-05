@@ -30,6 +30,8 @@ ALLOWED_HOSTS = ['localhost', 'django-env.eba-ebpb4enp.us-west-2.elasticbeanstal
 
 CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+CORE_VERSION = '1.0.0'
+APP_VERSION = '1.0.0'
 
 # Application definition
 
@@ -87,7 +89,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'core.context_processors.cfg_assets_root'
+                'core.context_processors.cfg_assets_root',
+                'core.context_processors.cfg_version',
             ],
         },
     },
@@ -163,3 +166,5 @@ STATIC_URL = '/static/'
 
 
 ASSETS_ROOT = '/static/assets'
+
+LOGIN_URL = 'login'

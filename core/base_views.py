@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.views import View
 from django.views.generic import CreateView, UpdateView, ListView, DetailView, DeleteView
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
 from django.shortcuts import get_object_or_404
 from django.apps import apps
@@ -11,7 +12,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.db.models import Q
 
 
-class BaseCreateView(CreateView):
+class BaseCreateView(LoginRequiredMixin, CreateView):
     template_name = 'form.html'
 
     def get_form_class(self):
@@ -31,7 +32,7 @@ class BaseCreateView(CreateView):
         return context
 
 
-class BaseUpdateView(UpdateView):
+class BaseUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'form.html'
 
     def get_form_class(self):
@@ -47,7 +48,7 @@ class BaseUpdateView(UpdateView):
         context['return_url'] = model_config.model_name.lower() + '-list'
         return context
 
-class BaseListView(ListView):
+class BaseListView(LoginRequiredMixin, ListView):
     template_name = 'list.html'
     paginate_by = 10
 
@@ -83,14 +84,15 @@ class BaseListView(ListView):
             return render(self.request, 'partials/table_container.html', context)
         return super().render_to_response(context, **response_kwargs)
 
-class BaseDetailView(DetailView):
+
+class BaseDetailView(LoginRequiredMixin, DetailView):
     template_name = 'detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
         context['config'] = model_config
-        context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='show')
+        context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='detail')
         if 'pk' in context['enabled_fields']:
             context['enabled_fields'].remove('pk')
         context['return_url'] = model_config.model_name.lower() + '-list'
@@ -99,7 +101,8 @@ class BaseDetailView(DetailView):
 
         return context
 
-class BaseDeleteView(DeleteView):
+
+class BaseDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'confirm_delete.html'
     success_url = reverse_lazy('home')
     def get_context_data(self, **kwargs):
@@ -107,7 +110,8 @@ class BaseDeleteView(DeleteView):
         context['return_url'] = self.model.__name__.lower() + '-list'
         return context
 
-class BaseMasterDetailView(DetailView):
+
+class BaseMasterDetailView(LoginRequiredMixin, DetailView):
     template_name = 'master_detail.html'
 
     def get_context_data(self, **kwargs):
@@ -136,7 +140,7 @@ class BaseMasterDetailView(DetailView):
         return context
 
 
-class MasterDetailCreateView(CreateView):
+class MasterDetailCreateView(LoginRequiredMixin, CreateView):
     template_name = 'master_detail_form.html'
     
     def get(self, request, app_label, model_name):
@@ -200,7 +204,8 @@ class MasterDetailCreateView(CreateView):
         context['return_url'] = model_config.model_name.lower() + '-list'
         return context
 
-class MasterDetailUpdateView(UpdateView):
+
+class MasterDetailUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'master_detail_form.html'
     success_url = reverse_lazy('home')
 

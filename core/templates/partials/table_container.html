@@ -7,7 +7,9 @@
                 {% for field in enabled_fields %}
                     <th>{{ field|titlify }}</th>
                 {% endfor %}
-                <th>Actions</th>
+                {% if actions.dropdown|length >= 1 %}
+                    <th>Actions</th>
+                {% endif %}
             </tr>
         </thead>
         {% include 'partials/table_body.html' %}

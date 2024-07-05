@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.apps import apps
 from django.contrib.auth.models import Group, User
-from core.models import AppConfiguration, ModelConfiguration, FieldConfiguration
+from core.models import AppConfiguration, ModelConfiguration, FieldConfiguration, ModelAction
 from django.conf import settings
 
 class Command(BaseCommand):
@@ -60,5 +60,28 @@ class Command(BaseCommand):
                     )
                     if created:
                         self.stdout.write(self.style.SUCCESS(f'Added new field configuration: {field_name} in model {model_name}'))
+
+                # Default Model Actions
+                default_actions = [
+                    ('create', 'create', 'button'),
+                    ('details', 'detail', 'dropdown'),
+                    ('edit', 'update', 'dropdown'),
+                    ('delete', 'delete', 'dropdown',),
+                ]
+
+                for action in default_actions:
+                    action_name, action_pattern, action_type = action
+                    action_obj, created = ModelAction.objects.get_or_create(
+                        name=action_name,
+                        defaults={
+                            'pattern': action_pattern,
+                            'action_type': action_type,
+                        }
+                    )
+                    if created:
+                        self.stdout.write(self.style.SUCCESS(f'Added new model action: {action_name}'))
+
+                    model_config_obj.actions.add(action_obj)
+
 
         self.stdout.write(self.style.SUCCESS('Configuration update complete.'))

@@ -33,7 +33,7 @@ class ModelConfiguration(models.Model):
     list_title = models.CharField(max_length=255, blank=True, null=True)
     default_sort_by = models.CharField(max_length=255, blank=True, null=True)
     # Views
-    actions = models.ManyToManyField(ModelAction, related_name='models', blank=True)
+    actions = models.ManyToManyField(ModelAction, related_name='models', blank=True, null=True)
     # Permissions
     read_permission_groups = models.ManyToManyField(Group, related_name='read_model_permissions', blank=True)
     read_permission_users = models.ManyToManyField(User, related_name='read_model_permissions', blank=True)
