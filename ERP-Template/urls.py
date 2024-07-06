@@ -28,4 +28,5 @@ urlpatterns = [
     path('inventory/', include(inventory_urls)),
     path('customers/', include(customers_urls)),
     path('orders/', include(orders_urls)),
+    path('django-rq/', include('django_rq.urls')),
 ]

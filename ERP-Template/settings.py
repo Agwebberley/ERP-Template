@@ -30,7 +30,7 @@ ALLOWED_HOSTS = ['localhost', 'django-env.eba-ebpb4enp.us-west-2.elasticbeanstal
 
 CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-CORE_VERSION = '1.0.0'
+CORE_VERSION = '1.1.0'
 APP_VERSION = '1.0.0'
 
 # Application definition
@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "crispy_bootstrap5",
     "django_htmx",
     "django_filters",
+    'django_rq',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -121,6 +122,24 @@ else:
         }
     }
 
+
+if os.getenv('ENV') == 'PRODUCTION':
+    # ElastiCache Redis settings for production
+    REDIS_HOST = 'your-elasticache-endpoint'
+    REDIS_PORT = 6379
+else:
+    # Local Redis settings for development
+    REDIS_HOST = 'localhost'
+    REDIS_PORT = 6379
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': 360,
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

@@ -13,7 +13,7 @@
             {% endfor %}
         </div>
         <div class="col-md-10">
-            <form id="search-form" hx-get="." hx-target="#table-body" hx-trigger="keyup changed delay:500ms, search">
+            <form id="search-form" hx-get="." hx-target="#table-container" hx-trigger="keyup delay:250ms, search">
                 <input type="text" name="query" placeholder="Search" value="{{ search_query }}" class="form-control">
             </form>
         </div>

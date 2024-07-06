@@ -1,5 +1,6 @@
 aniso8601==9.0.1
 asgiref==3.8.1
+async-timeout==4.0.3
 certifi==2024.6.2
 charset-normalizer==3.3.2
 click==8.1.7
@@ -10,6 +11,8 @@ django-cors-headers==4.3.1
 django-crispy-forms==2.1
 django-filter==24.2
 django-htmx==1.18.0
+django-redis==5.4.0
+django-rq==2.10.2
 djangorestframework==3.15.1
 djangorestframework-simplejwt==5.3.1
 graphene==3.3
@@ -27,7 +30,9 @@ psycopg==3.1.19
 psycopg-binary==3.1.19
 psycopg2-binary==2.9.9
 PyJWT==2.8.0
+redis==5.0.7
 requests==2.32.3
+rq==1.16.2
 six==1.16.0
 sqlparse==0.4.4
 text-unidecode==1.3

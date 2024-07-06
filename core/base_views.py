@@ -45,6 +45,8 @@ class BaseUpdateView(LoginRequiredMixin, UpdateView):
         model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
         context['config'] = model_config
         context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user)
+        if 'pk' in context['enabled_fields']:
+            context['enabled_fields'].remove('pk')
         context['return_url'] = model_config.model_name.lower() + '-list'
         return context
 
