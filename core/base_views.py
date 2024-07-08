@@ -1,18 +1,36 @@
 from django.http import JsonResponse
 from django.views import View
-from django.views.generic import CreateView, UpdateView, ListView, DetailView, DeleteView
+from django.views.generic import CreateView, UpdateView, ListView, DetailView, DeleteView, View
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
 from django.shortcuts import get_object_or_404
 from django.apps import apps
-from .models import ModelConfiguration
+from .models import ModelConfiguration, AppConfiguration
 from .utils import generate_inline_formset, generate_model_form, get_enabled_fields, generate_dynamic_form, get_actions
 from django.contrib.auth.views import LoginView, LogoutView
 from django.db.models import Q
 
+# Navigation Mixin
+class NavigationMixin:
+    def get_context_data(self, **kwargs):
+        if hasattr(super(), 'get_context_data'):
+            context = super().get_context_data(**kwargs)
+        else:
+            context = {}
+        apps = AppConfiguration.objects.filter(navigation_enabled=True)
+        
+        # Initialize a dictionary to hold apps and their models
+        apps_with_models = {}
+        
+        for app in apps:
+            # Assuming 'app' is a ForeignKey in ModelConfiguration pointing to AppConfiguration
+            models = ModelConfiguration.objects.filter(app=app, navigation_enabled=True)
+            apps_with_models[app] = models
+        context['apps'] = apps_with_models
+        return context
 
-class BaseCreateView(LoginRequiredMixin, CreateView):
+class BaseCreateView(LoginRequiredMixin, NavigationMixin, CreateView):
     template_name = 'form.html'
 
     def get_form_class(self):
@@ -32,7 +50,7 @@ class BaseCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
-class BaseUpdateView(LoginRequiredMixin, UpdateView):
+class BaseUpdateView(LoginRequiredMixin, NavigationMixin, UpdateView):
     template_name = 'form.html'
 
     def get_form_class(self):
@@ -50,7 +68,7 @@ class BaseUpdateView(LoginRequiredMixin, UpdateView):
         context['return_url'] = model_config.model_name.lower() + '-list'
         return context
 
-class BaseListView(LoginRequiredMixin, ListView):
+class BaseListView(LoginRequiredMixin, NavigationMixin, ListView):
     template_name = 'list.html'
     paginate_by = 10
 
@@ -87,7 +105,7 @@ class BaseListView(LoginRequiredMixin, ListView):
         return super().render_to_response(context, **response_kwargs)
 
 
-class BaseDetailView(LoginRequiredMixin, DetailView):
+class BaseDetailView(LoginRequiredMixin, NavigationMixin, DetailView):
     template_name = 'detail.html'
 
     def get_context_data(self, **kwargs):
@@ -104,7 +122,7 @@ class BaseDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class BaseDeleteView(LoginRequiredMixin, DeleteView):
+class BaseDeleteView(LoginRequiredMixin, NavigationMixin, DeleteView):
     template_name = 'confirm_delete.html'
     success_url = reverse_lazy('home')
     def get_context_data(self, **kwargs):
@@ -113,7 +131,7 @@ class BaseDeleteView(LoginRequiredMixin, DeleteView):
         return context
 
 
-class BaseMasterDetailView(LoginRequiredMixin, DetailView):
+class BaseMasterDetailView(LoginRequiredMixin, NavigationMixin, DetailView):
     template_name = 'master_detail.html'
 
     def get_context_data(self, **kwargs):
@@ -142,7 +160,7 @@ class BaseMasterDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class MasterDetailCreateView(LoginRequiredMixin, CreateView):
+class MasterDetailCreateView(LoginRequiredMixin, NavigationMixin, CreateView):
     template_name = 'master_detail_form.html'
     
     def get(self, request, app_label, model_name):
@@ -207,7 +225,7 @@ class MasterDetailCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
-class MasterDetailUpdateView(LoginRequiredMixin, UpdateView):
+class MasterDetailUpdateView(LoginRequiredMixin, NavigationMixin, UpdateView):
     template_name = 'master_detail_form.html'
     success_url = reverse_lazy('home')
 
@@ -274,8 +292,11 @@ class MasterDetailUpdateView(LoginRequiredMixin, UpdateView):
         context['return_url'] = model_config.model_name.lower() + '-list'
         return context
 
-def home(request):
-    return render(request, 'home.html')
+class HomeView(NavigationMixin, View):
+    template_name = 'home.html'
+
+    def get(self, request):
+        return render(request, self.template_name, self.get_context_data())
 
 class AddFormsetRowView(View):
     def post(self, request, app_label, model_name):

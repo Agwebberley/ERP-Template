@@ -10,37 +10,25 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{% url 'home' %}">My Django App</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item"><a class="nav-link" href="{% url 'part-list' %}">Parts</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'customer-list' %}">Customers</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'order-list' %}">Orders</a></li>
-            </ul>
-            <ul class="navbar-nav ml-auto">
-                {% block user_menu %}
-                    {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" 
-                           hx-trigger="click" 
-                           hx-post="{% url 'logout' %}" 
-                           hx-swap="none" 
-                           id="logout-link">
-                            Logout
-                        </a>
-                    </li>
-                    {% else %}
-                    <li class="nav-item"><a class="nav-link login" href="{% url 'login' %}">Login</a></li>
-                    {% endif %}
-                {% endblock %}
-            </ul>
-        </div>
-    </nav>
+
     
-    <div class="container mt-4">
-        {% block content %}
-        {% endblock %}
+    <div class="container-fluid">
+        <div class="row">
+                {% include 'partials/left_side_panel.html' %}
+
+            <div class="col-md-9">
+                <nav class="navbar bg-body-tertiary sticky-top">
+                    <div class="container-fluid">
+                        <a class="navbar-brand" href="#">
+                            <img src="https://getbootstrap.com/docs/5.3/assets/brand/bootstrap-logo.svg" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
+                            Branding
+                        </a>
+                    </div>
+                </nav>
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
     </div>
     {% include 'partials/footer.html' %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
