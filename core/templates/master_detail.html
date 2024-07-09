@@ -21,7 +21,11 @@
                 <div class="card mb-3">
                     <div class="card-header">{{ field|titlify }}</div>
                     <div class="card-body">
-                        <p class="card-text">{{ object|get_field_value:field }}</p>
+                        {% if object|is_foreign_key:field %}
+                            <p class="card-text"><a href="{% url object|get_detail_url:field object|get_foreign_key_value:field %}">{{ object|get_field_value:field }}</a></p>
+                        {% else %}
+                            <p class="card-text">{{ object|get_field_value:field }}</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -42,7 +46,11 @@
             {% for obj in child.objects %}
                 <tr>
                 {% for field in child.fields %}
-                    <td>{{ obj|get_field_value:field }}</td>
+                    {% if obj|is_foreign_key:field %}
+                        <td><a href="{% url obj|get_detail_url:field obj|get_foreign_key_value:field %}">{{ obj|get_field_value:field }}</a></td>
+                    {% else %}
+                        <td>{{ obj|get_field_value:field }}</td>
+                    {% endif %}
                 {% endfor %}
                 </tr>
             {% endfor %}

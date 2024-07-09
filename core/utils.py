@@ -42,6 +42,8 @@ def get_enabled_fields(app_name, model_name, user, view_type='list', properties=
                     enabled_fields.append(field_config.field_name)
     if view_type != 'form' and properties:
         properties = [prop for prop in dir(model) if isinstance(getattr(model, prop), property)]
+        if 'pk' in properties:
+            properties.pop(properties.index('pk'))
         enabled_fields += properties
             
     return enabled_fields

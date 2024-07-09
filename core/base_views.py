@@ -113,8 +113,6 @@ class BaseDetailView(LoginRequiredMixin, NavigationMixin, DetailView):
         model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
         context['config'] = model_config
         context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='detail')
-        if 'pk' in context['enabled_fields']:
-            context['enabled_fields'].remove('pk')
         context['return_url'] = model_config.model_name.lower() + '-list'
         context['edit_url'] = model_config.model_name.lower() + '-update'
         context['delete_url'] = model_config.model_name.lower() + '-delete'
@@ -139,8 +137,6 @@ class BaseMasterDetailView(LoginRequiredMixin, NavigationMixin, DetailView):
         model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
         context['config'] = model_config
         context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='detail')
-        if 'pk' in context['enabled_fields']:
-            context['enabled_fields'].remove('pk')
         parent_model = self.model
         child_models = [rel.related_model for rel in parent_model._meta.related_objects]
 
@@ -149,7 +145,7 @@ class BaseMasterDetailView(LoginRequiredMixin, NavigationMixin, DetailView):
             child_instances.append({
                 'name': child_model._meta.verbose_name_plural,
                 'objects': child_model.objects.filter(**{parent_model._meta.model_name + '_id': self.object.pk}),
-                'fields': [field.name for field in child_model._meta.fields if field.name != parent_model._meta.model_name + '_id']
+                'fields': get_enabled_fields(model_config.app.name, child_model.__name__, self.request.user, view_type='list')
             })
         
         context['child_instances'] = child_instances

@@ -19,3 +19,26 @@ def titlify(value):
 @register.filter
 def get_property(obj, prop):
     return getattr(obj, prop)
+
+# Filters to check if field is a ForeignKey
+# And to get url for the related model
+@register.filter
+def is_foreign_key(instance, field):
+    try:
+        return instance._meta.get_field(field).get_internal_type() == 'ForeignKey'
+    except:
+        return False
+
+@register.filter
+def get_detail_url(instance, field):
+    try:
+        return instance._meta.get_field(field).related_model._meta.model_name + '-detail'
+    except:
+        return ''
+
+@register.filter
+def get_foreign_key_value(instance, field):
+    try:
+        return getattr(instance, field).pk
+    except:
+        return ''

@@ -30,7 +30,7 @@ ALLOWED_HOSTS = ['localhost', 'django-env.eba-ebpb4enp.us-west-2.elasticbeanstal
 
 CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-CORE_VERSION = '1.3.0'
+CORE_VERSION = '1.3.1'
 APP_VERSION = '1.1.0'
 
 # Application definition
