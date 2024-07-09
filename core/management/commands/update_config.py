@@ -57,6 +57,7 @@ class Command(BaseCommand):
                             'enable_in_detail': True,
                             'display_name': verbose_name,
                             'inherit_permissions': True,
+                            'enable_in_form': False if field_name in ['created_at', 'updated_at'] else True,
                         }
                     )
                     if created:

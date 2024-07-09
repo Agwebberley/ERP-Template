@@ -1,9 +1,10 @@
 from django.db import models
 from customers.models import Customer
 from inventory.models import Part
+from core.models import BaseModel
 # Create your models here.
 
-class OrderItem(models.Model):
+class OrderItem(BaseModel):
     order = models.ForeignKey('Order', on_delete=models.CASCADE)
     part = models.ForeignKey(Part, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
@@ -15,7 +16,7 @@ class OrderItem(models.Model):
     def total(self):
         return self.part.price * self.quantity
 
-class Order(models.Model):
+class Order(BaseModel):
     id = models.AutoField(primary_key=True)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     order_date = models.DateField(auto_now_add=True)

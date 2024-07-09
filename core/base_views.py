@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
 from django.shortcuts import get_object_or_404
 from django.apps import apps
-from .models import ModelConfiguration, AppConfiguration
+from .models import ModelConfiguration, AppConfiguration, LogMessage
 from .utils import generate_inline_formset, generate_model_form, get_enabled_fields, generate_dynamic_form, get_actions
 from django.contrib.auth.views import LoginView, LogoutView
 from django.db.models import Q
@@ -228,6 +228,7 @@ class MasterDetailCreateView(LoginRequiredMixin, NavigationMixin, CreateView):
 class MasterDetailUpdateView(LoginRequiredMixin, NavigationMixin, UpdateView):
     template_name = 'master_detail_form.html'
     success_url = reverse_lazy('home')
+    
 
     def get(self, request, app_label, model_name, pk):
         parent_model = apps.get_model(app_label, model_name)
@@ -275,22 +276,18 @@ class MasterDetailUpdateView(LoginRequiredMixin, NavigationMixin, UpdateView):
                 formset.save()
             # Use success_url instead of redirect
             return redirect(self.success_url)
-
-        return render(request, self.template_name, {
+        
+        context = {
             'parent_form': parent_form,
             'child_formsets': child_formsets,
             'model_name': model_name,
             'app_label': app_label,
             'return_url': model_name.lower() + '-list'
-        })
+        }
+        context += self.get_context_data()
+
+        return render(request, self.template_name, context)
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
-        context['config'] = model_config
-        context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='form')
-        context['return_url'] = model_config.model_name.lower() + '-list'
-        return context
 
 class HomeView(NavigationMixin, View):
     template_name = 'home.html'
@@ -328,3 +325,6 @@ class LoginView(LoginView):
 class LogoutView(LogoutView):
     next_page = reverse_lazy('home')
     template_name = 'home.html'
+
+class LogMessageView(BaseListView):
+    model = LogMessage

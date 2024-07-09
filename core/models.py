@@ -3,6 +3,37 @@ from django.contrib.auth.models import Group, User
 
 # Meta Models
 
+class LogMessage(models.Model):
+    message = models.TextField()
+    level = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.message
+
+class BaseModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def log_message(cls, instance, action):
+        message = f"{cls.__name__} {action}: {instance}"
+        level = "INFO" if action == "created" else "WARNING"
+        LogMessage.objects.create(message=message, level=level)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.log_message(self, "created")
+        else:
+            self.log_message(self, "updated")
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.log_message(self, "deleted")
+        super().delete(*args, **kwargs)
+    
+    class Meta:
+        abstract = True
+
 class ModelAction(models.Model):
     ACTION_TYPES = {
         ('dropdown', 'Dropdown'),
