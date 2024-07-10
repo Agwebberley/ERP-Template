@@ -10,7 +10,7 @@ class Invoice(BaseModel):
     ]
 
     id = models.AutoField(primary_key=True)
-    order = models.OneToOneField(Order, on_delete=models.SET('CANCELLED'))
+    order = models.OneToOneField(Order, on_delete=models.CASCADE)
     invoice_date = models.DateField(auto_now_add=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
 
