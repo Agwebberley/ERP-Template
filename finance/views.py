@@ -1,3 +1,10 @@
 from django.shortcuts import render
+from core.base_views import BaseListView, BaseDetailView
+from .models import Invoice
 
-# Create your views here.
+class InvoiceListView(BaseListView):
+    model = Invoice
+
+class InvoiceDetailView(BaseDetailView):
+    model = Invoice
+

@@ -45,7 +45,10 @@ def get_enabled_fields(app_name, model_name, user, view_type='list', properties=
         if 'pk' in properties:
             properties.pop(properties.index('pk'))
         enabled_fields += properties
-            
+    
+    if 'is_deleted' in enabled_fields:
+        enabled_fields.pop(enabled_fields.index('is_deleted'))
+    print(enabled_fields)
     return enabled_fields
 
 def user_has_model_read_permission(user, model_config):

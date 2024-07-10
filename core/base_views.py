@@ -162,8 +162,8 @@ class MasterDetailCreateView(LoginRequiredMixin, NavigationMixin, CreateView):
     
     def get(self, request, app_label, model_name):
         parent_model = apps.get_model(app_label, model_name)
-        child_models = [rel.related_model for rel in parent_model._meta.related_objects]
-
+        child_models = [rel.related_model for rel in parent_model._meta.related_objects if rel.one_to_many]
+        
         parent_form_class = generate_model_form(app_label, parent_model.__name__.lower(), self.request.user)
         parent_form = parent_form_class()
         
@@ -183,7 +183,7 @@ class MasterDetailCreateView(LoginRequiredMixin, NavigationMixin, CreateView):
 
     def post(self, request, app_label, model_name):
         parent_model = apps.get_model(app_label, model_name)
-        child_models = [rel.related_model for rel in parent_model._meta.related_objects]
+        child_models = [rel.related_model for rel in parent_model._meta.related_objects if rel.one_to_many]
 
         parent_form_class = generate_model_form(app_label, parent_model.__name__.lower(), self.request.user)
         parent_form = parent_form_class(request.POST)
@@ -230,7 +230,7 @@ class MasterDetailUpdateView(LoginRequiredMixin, NavigationMixin, UpdateView):
     def get(self, request, app_label, model_name, pk):
         parent_model = apps.get_model(app_label, model_name)
         instance = get_object_or_404(parent_model, pk=pk)
-        child_models = [rel.related_model for rel in parent_model._meta.related_objects]
+        child_models = [rel.related_model for rel in parent_model._meta.related_objects if rel.one_to_many]
 
         parent_form_class = generate_model_form(app_label, parent_model.__name__.lower(), self.request.user)
         parent_form = parent_form_class(instance=instance)
@@ -252,7 +252,7 @@ class MasterDetailUpdateView(LoginRequiredMixin, NavigationMixin, UpdateView):
     def post(self, request, app_label, model_name, pk):
         parent_model = apps.get_model(app_label, model_name)
         instance = get_object_or_404(parent_model, pk=pk)
-        child_models = [rel.related_model for rel in parent_model._meta.related_objects]
+        child_models = [rel.related_model for rel in parent_model._meta.related_objects if rel.one_to_many]
 
         parent_form_class = generate_model_form(app_label, model_name, self.request.user)
         parent_form = parent_form_class(request.POST, instance=instance)

@@ -35,7 +35,7 @@ class Command(BaseCommand):
                         'enable_search': True,
                         'list_title': f'{model_name} List',
                         'default_sort_by': 'id',
-                        'list_url': f'{model_name}-list'
+                        'list_url': f'{model_name}-list'.lower()
                     }
                 )
                 if created:
@@ -57,7 +57,7 @@ class Command(BaseCommand):
                             'enable_in_detail': True,
                             'display_name': verbose_name,
                             'inherit_permissions': True,
-                            'enable_in_form': False if field_name in ['created_at', 'updated_at'] else True,
+                            'enable_in_form': False if field_name in ['created_at', 'updated_at', 'is_deleted'] else True,
                         }
                     )
                     if created:

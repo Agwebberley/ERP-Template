@@ -20,3 +20,4 @@ class Invoice(BaseModel):
     @property
     def total(self):
         return self.order.total
+    
