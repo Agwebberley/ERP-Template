@@ -65,10 +65,10 @@ class Command(BaseCommand):
 
                 # Default Model Actions
                 default_actions = [
-                    ('create', 'create', 'button'),
-                    ('details', 'detail', 'dropdown'),
-                    ('edit', 'update', 'dropdown'),
-                    ('delete', 'delete', 'dropdown',),
+                    ('Create', 'create', 'button'),
+                    ('Details', 'detail', 'dropdown'),
+                    ('Edit', 'update', 'dropdown'),
+                    ('Delete', 'delete', 'dropdown',),
                 ]
 
                 for action in default_actions:

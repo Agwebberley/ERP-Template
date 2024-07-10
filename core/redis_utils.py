@@ -10,3 +10,16 @@ def subscribe_to_channel(channel):
     pubsub = redis_client.pubsub()
     pubsub.subscribe(channel)
     return pubsub
+
+listeners = {}
+
+def listener(channel):
+    def decorator(func):
+        if channel not in listeners:
+            listeners[channel] = []
+        listeners[channel].append(func)
+        return func
+    return decorator
+
+def get_listeners(channel):
+    return listeners.get(channel, [])
