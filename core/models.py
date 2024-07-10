@@ -7,36 +7,43 @@ from django.forms.models import model_to_dict
 
 
 # Meta Models
-
+class BaseModelManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)
 
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    objects = BaseModelManager()
+    all_objects = models.Manager()  # Manager that includes deleted objects
 
     def save(self, *args, **kwargs):
         if not self.pk:
             event_data = {
-            "action": "created",
-            "data": self.serialize()
-        }
+                "action": "created",
+                "data": self.serialize()
+            }
             publish_event(self.__class__.__name__, json.dumps(event_data))
         else:
             event_data = {
-            "action": "updated",
-            "data": self.serialize()
-        }
+                "action": "updated",
+                "data": self.serialize()
+            }
             publish_event(self.__class__.__name__, json.dumps(event_data))
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
+        self.is_deleted = True
         event_data = {
             "action": "deleted",
             "data": self.serialize()
         }
         publish_event(self.__class__.__name__, json.dumps(event_data))
-        super().delete(*args, **kwargs)
-    
+        self.save()
+
     def serialize(self):
         def convert_to_serializable(value):
             if isinstance(value, datetime.datetime):
@@ -45,24 +52,14 @@ class BaseModel(models.Model):
                 return value.isoformat()
             return value
 
-        data = {}
-        for field in self._meta.get_fields():
-            if field.is_relation:
-                if field.many_to_one:
-                    data[field.name] = getattr(self, field.name).id
-                elif field.many_to_many:
-                    data[field.name] = [obj.id for obj in getattr(self, field.name).all()]
-            else:
-                data[field.name] = getattr(self, field.name)
-
         data = model_to_dict(self)
-        # Convert all values to JSON serializable format
         data = {k: convert_to_serializable(v) for k, v in data.items()}
 
         return data
-    
+
     class Meta:
         abstract = True
+
 
 class LogMessage(BaseModel):
     channel = models.CharField(max_length=255, blank=True, null=True)
