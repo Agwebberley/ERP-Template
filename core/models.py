@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import Group, User
+from core.redis_utils import publish_event
 
 # Meta Models
 
@@ -23,6 +24,7 @@ class BaseModel(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk:
             self.log_message(self, "created")
+            publish_event(self.__class__.__name__, f"created: {self}")
         else:
             self.log_message(self, "updated")
         super().save(*args, **kwargs)

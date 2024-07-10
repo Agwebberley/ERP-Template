@@ -129,9 +129,3 @@ def generate_model_form(app_name, model_name, user):
 
 def generate_inline_formset(app_label, parent_model, child_model, user):
     return forms.inlineformset_factory(parent_model, child_model, form=generate_model_form(app_label, child_model.__name__.lower(), user), extra=1)
-
-
-redis_client = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
-
-def publish_event(channel, message):
-    redis_client.publish(channel, message)
