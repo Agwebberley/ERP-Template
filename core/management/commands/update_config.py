@@ -74,8 +74,9 @@ class Command(BaseCommand):
                 for action in default_actions:
                     action_name, action_pattern, action_type = action
                     action_obj, created = ModelAction.objects.get_or_create(
-                        name=action_name,
+                        list_name=action_name,
                         defaults={
+                            'detail_name': action_name,
                             'pattern': action_pattern,
                             'action_type': action_type,
                         }

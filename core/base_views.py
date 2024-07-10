@@ -7,26 +7,33 @@ from django.shortcuts import redirect, render
 from django.shortcuts import get_object_or_404
 from django.apps import apps
 from .models import ModelConfiguration, AppConfiguration, LogMessage
-from .utils import generate_inline_formset, generate_model_form, get_enabled_fields, generate_dynamic_form, get_actions
+from .utils import generate_inline_formset, get_enabled_fields, generate_dynamic_form, get_actions
 from django.contrib.auth.views import LoginView, LogoutView
 from django.db.models import Q
 
 # Navigation Mixin
+def nav_helper():
+    apps = AppConfiguration.objects.filter(navigation_enabled=True)
+        
+    # Initialize a dictionary to hold apps and their models
+    apps_with_models = {}
+    
+    for app in apps:
+        # Assuming 'app' is a ForeignKey in ModelConfiguration pointing to AppConfiguration
+        models = ModelConfiguration.objects.filter(app=app, navigation_enabled=True)
+        apps_with_models[app] = models
+
+    return apps_with_models
+
 class NavigationMixin:
     def get_context_data(self, **kwargs):
         if hasattr(super(), 'get_context_data'):
             context = super().get_context_data(**kwargs)
         else:
             context = {}
-        apps = AppConfiguration.objects.filter(navigation_enabled=True)
         
-        # Initialize a dictionary to hold apps and their models
-        apps_with_models = {}
-        
-        for app in apps:
-            # Assuming 'app' is a ForeignKey in ModelConfiguration pointing to AppConfiguration
-            models = ModelConfiguration.objects.filter(app=app, navigation_enabled=True)
-            apps_with_models[app] = models
+        apps_with_models = nav_helper()
+
         context['apps'] = apps_with_models
         return context
 
@@ -47,6 +54,7 @@ class BaseCreateView(LoginRequiredMixin, NavigationMixin, CreateView):
         if 'pk' in context['enabled_fields']:
             context['enabled_fields'].remove('pk')
         context['return_url'] = model_config.model_name.lower() + '-list'
+        
         return context
 
 
@@ -113,9 +121,7 @@ class BaseDetailView(LoginRequiredMixin, NavigationMixin, DetailView):
         model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
         context['config'] = model_config
         context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='detail')
-        context['return_url'] = model_config.model_name.lower() + '-list'
-        context['edit_url'] = model_config.model_name.lower() + '-update'
-        context['delete_url'] = model_config.model_name.lower() + '-delete'
+        context['actions'] = get_actions(model_config.app.name, model_config.model_name, view_type='detail')
 
         return context
 
@@ -138,7 +144,7 @@ class BaseMasterDetailView(LoginRequiredMixin, NavigationMixin, DetailView):
         context['config'] = model_config
         context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='detail')
         parent_model = self.model
-        child_models = [rel.related_model for rel in parent_model._meta.related_objects]
+        child_models = [rel.related_model for rel in parent_model._meta.related_objects if rel.one_to_many]
 
         child_instances = []
         for child_model in child_models:
@@ -149,141 +155,87 @@ class BaseMasterDetailView(LoginRequiredMixin, NavigationMixin, DetailView):
             })
         
         context['child_instances'] = child_instances
-        context['return_url'] = model_config.model_name.lower() + '-list'
-        context['edit_url'] = model_config.model_name.lower() + '-update'
-        context['delete_url'] = model_config.model_name.lower() + '-delete'
+        context['actions'] = get_actions(model_config.app.name, model_config.model_name, view_type='detail')
 
         return context
 
 
-class MasterDetailCreateView(LoginRequiredMixin, NavigationMixin, CreateView):
+class MasterDetailBaseView(LoginRequiredMixin, NavigationMixin):
     template_name = 'master_detail_form.html'
     success_url = reverse_lazy('home')
-    
-    def get(self, request, app_label, model_name):
+
+    def get_parent_and_child_models(self, app_label, model_name):
         parent_model = apps.get_model(app_label, model_name)
         child_models = [rel.related_model for rel in parent_model._meta.related_objects if rel.one_to_many]
-        
-        parent_form_class = generate_model_form(app_label, parent_model.__name__.lower(), self.request.user)
-        parent_form = parent_form_class()
-        
-        child_formsets = []
-        for child_model in child_models:
-            formset_class = generate_inline_formset(app_label, parent_model, child_model, self.request.user)
-            formset = formset_class()
-            child_formsets.append((child_model._meta.verbose_name_plural, formset))
+        return parent_model, child_models
 
-        return render(request, self.template_name, {
-            'parent_form': parent_form,
-            'child_formsets': child_formsets,
-            'model_name': model_name,
-            'app_label': app_label,
-            'return_url': model_name.lower() + '-list'
-        })
-
-    def post(self, request, app_label, model_name):
-        parent_model = apps.get_model(app_label, model_name)
-        child_models = [rel.related_model for rel in parent_model._meta.related_objects if rel.one_to_many]
-
-        parent_form_class = generate_model_form(app_label, parent_model.__name__.lower(), self.request.user)
-        parent_form = parent_form_class(request.POST)
-
-        child_formsets = []
-        formset_valid = True
-        for child_model in child_models:
-            formset_class = generate_inline_formset(app_label, parent_model, child_model, self.request.user)
-            formset = formset_class(request.POST)
-            child_formsets.append((child_model._meta.verbose_name_plural, formset))
-            if not formset.is_valid():
-                formset_valid = False
-
-        if parent_form.is_valid() and formset_valid:
-            parent_instance = parent_form.save()
-            for _, formset in child_formsets:
-                formset.instance = parent_instance
-                formset.save()
-            # Use success_url instead of redirect
-            return self.success_url
-
-        return render(request, self.template_name, {
-            'parent_form': parent_form,
-            'child_formsets': child_formsets,
-            'model_name': model_name,
-            'app_label': app_label,
-            'return_url': model_name.lower() + '-list'
-        })
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_parent_form(self, app_label, model_name, instance=None):
         model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
-        context['config'] = model_config
-        context['enabled_fields'] = get_enabled_fields(model_config.app.name, model_config.model_name, self.request.user, view_type='form')
-        context['return_url'] = model_config.model_name.lower() + '-list'
-        return context
+        return generate_dynamic_form(model_config.app.name, model_config.model_name, self.request.user)
 
 
-class MasterDetailUpdateView(LoginRequiredMixin, NavigationMixin, UpdateView):
-    template_name = 'master_detail_form.html'
-    success_url = reverse_lazy('home')
-    
-
-    def get(self, request, app_label, model_name, pk):
-        parent_model = apps.get_model(app_label, model_name)
-        instance = get_object_or_404(parent_model, pk=pk)
-        child_models = [rel.related_model for rel in parent_model._meta.related_objects if rel.one_to_many]
-
-        parent_form_class = generate_model_form(app_label, parent_model.__name__.lower(), self.request.user)
-        parent_form = parent_form_class(instance=instance)
-        
-        child_formsets = []
+    def get_child_formsets(self, app_label, parent_model, child_models, instance=None):
+        formsets = []
         for child_model in child_models:
-            formset_class = generate_inline_formset(app_label, parent_model, child_model, self.request.user)
-            formset = formset_class(instance=instance)
-            child_formsets.append((child_model._meta.verbose_name_plural, formset))
+            child_model_config = get_object_or_404(ModelConfiguration, model_name=child_model.__name__)
+            formset_class = generate_inline_formset(child_model_config.app.name, parent_model, child_model, child_model_config.model_name, self.request.user)
+            formset = formset_class(self.request.POST if self.request.method == 'POST' else None, instance=instance)
+            formsets.append((child_model._meta.verbose_name_plural, formset))
+        return formsets
 
-        return render(request, self.template_name, {
-            'parent_form': parent_form,
-            'child_formsets': child_formsets,
-            'model_name': model_name,
-            'app_label': app_label,
-            'return_url': model_name.lower() + '-list'
-        })
-
-    def post(self, request, app_label, model_name, pk):
-        parent_model = apps.get_model(app_label, model_name)
-        instance = get_object_or_404(parent_model, pk=pk)
-        child_models = [rel.related_model for rel in parent_model._meta.related_objects if rel.one_to_many]
-
-        parent_form_class = generate_model_form(app_label, model_name, self.request.user)
-        parent_form = parent_form_class(request.POST, instance=instance)
-        
-        child_formsets = []
-        formset_valid = True
-        for child_model in child_models:
-            formset_class = generate_inline_formset(app_label, parent_model, child_model, self.request.user)
-            formset = formset_class(request.POST, instance=instance)
-            child_formsets.append((child_model._meta.verbose_name_plural, formset))
-            if not formset.is_valid():
-                formset_valid = False
-
-        if parent_form.is_valid() and formset_valid:
-            parent_instance = parent_form.save()
-            for _, formset in child_formsets:
-                formset.instance = parent_instance
-                formset.save()
-            # Use success_url instead of redirect
-            return redirect(self.success_url)
-        
+    def render_form(self, parent_form, child_formsets, app_label, model_name):
+        model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
         context = {
             'parent_form': parent_form,
             'child_formsets': child_formsets,
             'model_name': model_name,
             'app_label': app_label,
-            'return_url': model_name.lower() + '-list'
+            'return_url': model_name.lower() + '-list',
+            'apps': nav_helper(),
         }
-        context += self.get_context_data()
+        return render(self.request, self.template_name, context)
 
-        return render(request, self.template_name, context)
+    def handle_post(self, parent_form, child_formsets):
+        formset_valid = all(formset.is_valid() for _, formset in child_formsets)
+
+        if parent_form.is_valid() and formset_valid:
+            parent_instance = parent_form.save()
+            for _, formset in child_formsets:
+                formset.instance = parent_instance
+                formset.save()
+            return redirect(self.success_url)
+
+        return self.render_form(parent_form, child_formsets, self.kwargs['app_label'], self.kwargs['model_name'])
+
+class MasterDetailCreateView(MasterDetailBaseView, CreateView):
+    def get(self, request, app_label, model_name):
+        parent_model, child_models = self.get_parent_and_child_models(app_label, model_name)
+        parent_form = self.get_parent_form(app_label, parent_model.__name__.lower())
+        child_formsets = self.get_child_formsets(app_label, parent_model, child_models)
+        return self.render_form(parent_form, child_formsets, app_label, model_name)
+
+    def post(self, request, app_label, model_name):
+        parent_model, child_models = self.get_parent_and_child_models(app_label, model_name)
+        parent_form = self.get_parent_form(app_label, parent_model.__name__.lower())
+        child_formsets = self.get_child_formsets(app_label, parent_model, child_models)
+        return self.handle_post(parent_form, child_formsets)
+
+class MasterDetailUpdateView(MasterDetailBaseView, UpdateView):
+    def get(self, request, app_label, model_name, pk):
+        parent_model, child_models = self.get_parent_and_child_models(app_label, model_name)
+        instance = get_object_or_404(parent_model, pk=pk)
+        parent_form = self.get_parent_form(app_label, parent_model.__name__.lower(), instance=instance)
+        child_formsets = self.get_child_formsets(app_label, parent_model, child_models, instance=instance)
+        return self.render_form(parent_form, child_formsets, app_label, model_name)
+
+    def post(self, request, app_label, model_name, pk):
+        parent_model, child_models = self.get_parent_and_child_models(app_label, model_name)
+        instance = get_object_or_404(parent_model, pk=pk)
+        parent_form = self.get_parent_form(app_label, parent_model.__name__.lower(), instance=instance)
+        child_formsets = self.get_child_formsets(app_label, parent_model, child_models, instance=instance)
+        return self.handle_post(parent_form, child_formsets)
+
+
     
 
 class HomeView(NavigationMixin, View):

@@ -26,16 +26,13 @@
             </div>
         </div>
         <div class="card-footer">
-            <a href="{% url return_url %}" class="btn btn-secondary">Back to List</a>
-            {% url 'edit_url' object.pk as edit_url_ %}
-            {% if edit_url_ %}
-                <a href="{% url edit_url object.pk %}" class="btn btn-primary">Edit</a>
-            {% endif %}
-            
-            {% url 'delete_url' object.pk as delete_url_ %}
-            {% if delete_url_ %}
-                <a href="{% url delete_url object.pk %}" class="btn btn-primary">Edit</a>
-            {% endif %}
+            {% for action in actions %}
+                {% if action.include_pk %}
+                    <a href="{% url action.pattern object.pk %}" class="btn btn-primary">{{ action.name }}</a>
+                {% else %}
+                    <a href="{% url action.pattern %}" class="btn btn-primary">{{ action.name }}</a>
+                {% endif %}
+            {% endfor %}
         </div>
     </div>
 </div>

@@ -103,32 +103,24 @@ def generate_dynamic_form(app_name, model_name, user):
 
     return DynamicForm
 
-def get_actions(app_name, model_name):
+def get_actions(app_name, model_name, view_type='list'):
     model_config = get_model_config(app_name, model_name)
-    actions = {'dropdown': [], 'button': []}
+    if view_type == 'list':
+        actions = {'dropdown': [], 'button': []}
+    elif view_type == 'detail':
+        actions = []
     # Seperate dropdown actions from button actions
     for action in model_config.actions.all():
-        if action.action_type == 'dropdown':
-            actions['dropdown'].append({'name': action.name, 'pattern': model_name.lower() + '-' + action.pattern})
-        if action.action_type == 'button':
-            actions['button'].append({'name': action.name, 'pattern': model_name.lower() + '-' + action.pattern})
+        if view_type == 'list' and action.enable_in_list:
+            if action.action_type == 'dropdown':
+                actions['dropdown'].append({'name': action.list_name, 'pattern': model_name.lower() + '-' + action.pattern})
+            if action.action_type == 'button':
+                actions['button'].append({'name': action.list_name, 'pattern': model_name.lower() + '-' + action.pattern})
+        elif view_type == 'detail' and action.enable_in_detail:
+            actions.append({'name': action.detail_name, 'pattern': model_name.lower() + '-' + action.pattern, 'include_pk': action.include_pk})
+    print(actions)
     return actions
 
-def generate_model_form(app_name, model_name, user):
-    model_class = apps.get_model(app_label=app_name, model_name=model_name)
-    class GenericModelForm(forms.ModelForm):
-        class Meta:
-            model = model_class
-            fields = '__all__'
 
-        def __init__(self, *args, **kwargs):
-            super(GenericModelForm, self).__init__(*args, **kwargs)
-            self.helper = FormHelper()
-            self.helper.form_method = 'post'
-            self.helper.layout = Layout(*[Field(field_name) for field_name in self.fields])
-            self.helper.add_input(Submit('submit', 'Save'))
-    
-    return GenericModelForm
-
-def generate_inline_formset(app_label, parent_model, child_model, user):
-    return forms.inlineformset_factory(parent_model, child_model, form=generate_model_form(app_label, child_model.__name__.lower(), user), extra=1)
+def generate_inline_formset(app_label, parent_model, child_model, model_name, user):
+    return forms.inlineformset_factory(parent_model, child_model, form=generate_dynamic_form(app_label, model_name, user), extra=1)

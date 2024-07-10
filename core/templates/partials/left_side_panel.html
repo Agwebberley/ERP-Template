@@ -67,12 +67,16 @@
   <ul class="list-unstyled ps-0">
     {% for app, models in apps.items %}
       <li class="mb-1">
-        <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse" data-bs-target="#{{ app.name|slugify }}-collapse" aria-expanded="false">{{ app.name|titlify }}</button>
-        <div class="collapse" id="{{ app.name|slugify }}-collapse" style="">
+        <button class="btn btn-toggle align-items-center rounded {% if app.name == config.app.name %}aria-expanded="true"{% else %}collapsed{% endif %}" data-bs-toggle="collapse" data-bs-target="#{{ app.name|slugify }}-collapse" aria-expanded="{% if app.name == config.app.name %}true{% else %}false{% endif %}">
+          {{ app.name|titlify }}
+        </button>
+        <div class="collapse {% if app.name == config.app.name %}show{% endif %}" id="{{ app.name|slugify }}-collapse">
           <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
             {% for model in models %}
               <li>
-                <a href="{% url model.list_url %}" class="link-dark rounded">{{ model.model_name|titlify }}</a>
+                <a href="{% url model.list_url %}" class="link-dark rounded {% if model.model_name == config.model_name %}nav-active{% endif %}">
+                  {{ model.model_name|titlify }}
+                </a>
               </li>
             {% endfor %}
           </ul>
@@ -153,7 +157,12 @@
     border: 0;
   }
   .btn-toggle:hover,
-  .btn-toggle:focus {
+  .btn-toggle:focus,{
+    color: rgba(0, 0, 0, 0.85);
+    background-color: #d2f4ea;
+  }
+
+  .nav-active {
     color: rgba(0, 0, 0, 0.85);
     background-color: #d2f4ea;
   }

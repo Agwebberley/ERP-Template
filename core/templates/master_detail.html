@@ -59,9 +59,13 @@
     </div>
     {% endfor %}
 </div>
-<a href="{% url return_url %}" class="btn btn-secondary">Back</a>
-<a href="{% url edit_url object.pk %}" class="btn btn-primary">Edit</a>
-<a href="{% url delete_url object.pk %}" class="btn btn-danger">Delete</a>
+{% for action in actions %}
+{% if action.include_pk %}
+    <a href="{% url action.pattern object.pk %}" class="btn btn-primary">{{ action.name }}</a>
+{% else %}
+    <a href="{% url action.pattern %}" class="btn btn-primary">{{ action.name }}</a>
+{% endif %}
+{% endfor %}
 
 <script>
     function openTab(evt, tabName) {

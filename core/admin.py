@@ -23,6 +23,6 @@ class FieldConfigurationAdmin(admin.ModelAdmin):
 
 @admin.register(ModelAction)
 class ModelActionAdmin(admin.ModelAdmin):
-    list_display = ['name', 'pattern', 'action_type']
-    search_fields = ['name']
+    list_display = ['list_name', 'pattern', 'action_type']
+    search_fields = ['list_name']
     list_filter = ['action_type']
