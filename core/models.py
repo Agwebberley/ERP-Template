@@ -1,40 +1,76 @@
+import datetime
+import json
 from django.db import models
 from django.contrib.auth.models import Group, User
 from core.redis_utils import publish_event
+from django.forms.models import model_to_dict
+
 
 # Meta Models
 
-class LogMessage(models.Model):
-    message = models.TextField()
-    level = models.CharField(max_length=255)
 
-    def __str__(self):
-        return self.message
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    @classmethod
-    def log_message(cls, instance, action):
-        message = f"{cls.__name__} {action}: {instance}"
-        level = "INFO" if action == "created" else "WARNING"
-        LogMessage.objects.create(message=message, level=level)
-
     def save(self, *args, **kwargs):
         if not self.pk:
-            self.log_message(self, "created")
-            publish_event(self.__class__.__name__, f"created: {self}")
+            event_data = {
+            "action": "created",
+            "data": self.serialize()
+        }
+            publish_event(self.__class__.__name__, json.dumps(event_data))
         else:
-            self.log_message(self, "updated")
+            event_data = {
+            "action": "updated",
+            "data": self.serialize()
+        }
+            publish_event(self.__class__.__name__, json.dumps(event_data))
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        self.log_message(self, "deleted")
+        event_data = {
+            "action": "deleted",
+            "data": self.serialize()
+        }
+        publish_event(self.__class__.__name__, json.dumps(event_data))
         super().delete(*args, **kwargs)
+    
+    def serialize(self):
+        def convert_to_serializable(value):
+            if isinstance(value, datetime.datetime):
+                return value.isoformat()
+            elif isinstance(value, datetime.date):
+                return value.isoformat()
+            return value
+
+        data = {}
+        for field in self._meta.get_fields():
+            if field.is_relation:
+                if field.many_to_one:
+                    data[field.name] = getattr(self, field.name).id
+                elif field.many_to_many:
+                    data[field.name] = [obj.id for obj in getattr(self, field.name).all()]
+            else:
+                data[field.name] = getattr(self, field.name)
+
+        data = model_to_dict(self)
+        # Convert all values to JSON serializable format
+        data = {k: convert_to_serializable(v) for k, v in data.items()}
+
+        return data
     
     class Meta:
         abstract = True
+
+class LogMessage(BaseModel):
+    channel = models.CharField(max_length=255, blank=True, null=True)
+    action = models.CharField(max_length=255, blank=True, null=True)
+    message = models.JSONField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.channel} - {self.action}"
 
 class ModelAction(models.Model):
     ACTION_TYPES = {

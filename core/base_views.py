@@ -158,6 +158,7 @@ class BaseMasterDetailView(LoginRequiredMixin, NavigationMixin, DetailView):
 
 class MasterDetailCreateView(LoginRequiredMixin, NavigationMixin, CreateView):
     template_name = 'master_detail_form.html'
+    success_url = reverse_lazy('home')
     
     def get(self, request, app_label, model_name):
         parent_model = apps.get_model(app_label, model_name)
@@ -323,4 +324,7 @@ class LogoutView(LogoutView):
     template_name = 'home.html'
 
 class LogMessageView(BaseListView):
+    model = LogMessage
+
+class LogMessageDetailView(BaseDetailView):
     model = LogMessage

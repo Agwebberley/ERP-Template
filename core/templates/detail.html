@@ -27,8 +27,15 @@
         </div>
         <div class="card-footer">
             <a href="{% url return_url %}" class="btn btn-secondary">Back to List</a>
-            <a href="{% url edit_url object.pk %}" class="btn btn-primary">Edit</a>
-            <a href="{% url delete_url object.pk %}" class="btn btn-danger">Delete</a>
+            {% url 'edit_url' object.pk as edit_url_ %}
+            {% if edit_url_ %}
+                <a href="{% url edit_url object.pk %}" class="btn btn-primary">Edit</a>
+            {% endif %}
+            
+            {% url 'delete_url' object.pk as delete_url_ %}
+            {% if delete_url_ %}
+                <a href="{% url delete_url object.pk %}" class="btn btn-primary">Edit</a>
+            {% endif %}
         </div>
     </div>
 </div>

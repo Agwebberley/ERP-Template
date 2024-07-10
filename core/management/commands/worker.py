@@ -4,6 +4,8 @@ from django.apps import apps
 from django.core.management.base import BaseCommand
 import redis
 from django.conf import settings
+from core.models import LogMessage
+import json
 
 class Command(BaseCommand):
     help = 'Run Redis worker'
@@ -28,6 +30,18 @@ class Command(BaseCommand):
                 self.process_message(channel, data)
 
     def process_message(self, channel, data):
-        listeners = get_listeners(channel)
-        for listener in listeners:
-            listener(data)
+        try:
+            message_data = json.loads(data.decode('utf-8'))
+            action = message_data.get('action')
+            serialized_data = message_data.get('data')
+            
+            if channel != 'LogMessage':
+                LogMessage.objects.create(channel=channel, message=json.dumps(serialized_data), action=action)
+
+            listeners = get_listeners(channel)
+            for listener in listeners:
+                listener(action, serialized_data)
+        except json.JSONDecodeError as e:
+            print(f"Failed to decode JSON: {e}")
+        except Exception as e:
+            print(f"Error processing message: {e}")
