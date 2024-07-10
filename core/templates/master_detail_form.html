@@ -18,7 +18,7 @@
                     </li>
                     {% for child_name, _ in child_formsets %}
                     <li class="nav-item">
-                        <button class="nav-link" id="{{ child_name }}-tab" data-toggle="tab" onclick="openTab(event, '{{ child_name|slugify }}')" role="tab" aria-controls="{{ child_name }}" aria-selected="false" type="button">{{ child_name }}</button>
+                        <button class="nav-link" id="{{ child_name }}-tab" data-toggle="tab" onclick="openTab(event, '{{ child_name|slugify }}')" role="tab" aria-controls="{{ child_name }}" aria-selected="false" type="button">{{ child_name|titlify }}</button>
                     </li>
                     {% endfor %}
                 </ul>

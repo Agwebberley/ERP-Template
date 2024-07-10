@@ -1,22 +1,23 @@
 from finance.models import Invoice
+from orders.models import Order
+import json
 
-def event_handler(data):
-    if data['action'] == 'created':
-        order = data['data']
-        create_invoice(order)
-    elif data['action'] == 'updated':
-        order = data['data']
-        create_invoice(order)
-    elif data['action'] == 'deleted':
-        order = data['data']
-        delete_invoice(order)
+def event_handler(action, data):
+    if action == 'created':
+        create_invoice(data)
+    elif action == 'updated':
+        create_invoice(data)
+    elif action == 'deleted':
+        delete_invoice(data)
 
 def create_invoice(order):
+    order = Order.objects.get(id=order['id'])
     invoice = Invoice.objects.get_or_create(order=order)
     return invoice
 
 def delete_invoice(order):
-    invoice = Invoice.objects.get(order=order)
+    order = Order.objects.get(id=order['id'])
+    invoice = Invoice.objects.get_or_create(order=order)
     invoice.status = 'CANCELLED'
     invoice.save()
     return invoice

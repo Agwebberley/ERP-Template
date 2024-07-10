@@ -1,3 +1,4 @@
+from django.forms import BaseForm
 from django.http import JsonResponse
 from django.views import View
 from django.views.generic import CreateView, UpdateView, ListView, DetailView, DeleteView, View
@@ -170,21 +171,27 @@ class MasterDetailBaseView(LoginRequiredMixin, NavigationMixin):
         return parent_model, child_models
 
     def get_parent_form(self, app_label, model_name, instance=None):
-        model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
-        return generate_dynamic_form(model_config.app.name, model_config.model_name, self.request.user)
-
+        model_config = get_object_or_404(ModelConfiguration, model_name=model_name)
+        if instance:
+            form = generate_dynamic_form(model_config.app.name, model_config.model_name, self.request.user)
+            return form(data=self.request.POST if self.request.method == 'POST' else None, instance=instance)
+        else:
+            return generate_dynamic_form(model_config.app.name, model_config.model_name, self.request.user)
 
     def get_child_formsets(self, app_label, parent_model, child_models, instance=None):
         formsets = []
         for child_model in child_models:
             child_model_config = get_object_or_404(ModelConfiguration, model_name=child_model.__name__)
             formset_class = generate_inline_formset(child_model_config.app.name, parent_model, child_model, child_model_config.model_name, self.request.user)
-            formset = formset_class(self.request.POST if self.request.method == 'POST' else None, instance=instance)
+            if instance:
+                formset = formset_class(self.request.POST if self.request.method == 'POST' else None, instance=instance)
+            else:
+                formset = formset_class(self.request.POST if self.request.method == 'POST' else None)
             formsets.append((child_model._meta.verbose_name_plural, formset))
         return formsets
 
     def render_form(self, parent_form, child_formsets, app_label, model_name):
-        model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
+        model_config = get_object_or_404(ModelConfiguration, model_name=model_name)
         context = {
             'parent_form': parent_form,
             'child_formsets': child_formsets,
@@ -192,31 +199,37 @@ class MasterDetailBaseView(LoginRequiredMixin, NavigationMixin):
             'app_label': app_label,
             'return_url': model_name.lower() + '-list',
             'apps': nav_helper(),
+            'config': model_config,
         }
         return render(self.request, self.template_name, context)
 
     def handle_post(self, parent_form, child_formsets):
+        # Ensure parent_form is an instance
+        if isinstance(parent_form, type):
+            parent_form = parent_form(data=self.request.POST)
+    
         formset_valid = all(formset.is_valid() for _, formset in child_formsets)
-
+        
         if parent_form.is_valid() and formset_valid:
             parent_instance = parent_form.save()
             for _, formset in child_formsets:
                 formset.instance = parent_instance
                 formset.save()
             return redirect(self.success_url)
-
+    
+        print("LABELS: ", self.kwargs['app_label'], self.kwargs['model_name'])
         return self.render_form(parent_form, child_formsets, self.kwargs['app_label'], self.kwargs['model_name'])
 
 class MasterDetailCreateView(MasterDetailBaseView, CreateView):
     def get(self, request, app_label, model_name):
         parent_model, child_models = self.get_parent_and_child_models(app_label, model_name)
-        parent_form = self.get_parent_form(app_label, parent_model.__name__.lower())
+        parent_form = self.get_parent_form(app_label, parent_model.__name__)
         child_formsets = self.get_child_formsets(app_label, parent_model, child_models)
-        return self.render_form(parent_form, child_formsets, app_label, model_name)
+        return self.render_form(parent_form, child_formsets, app_label, parent_model.__name__)
 
     def post(self, request, app_label, model_name):
         parent_model, child_models = self.get_parent_and_child_models(app_label, model_name)
-        parent_form = self.get_parent_form(app_label, parent_model.__name__.lower())
+        parent_form = self.get_parent_form(app_label, parent_model.__name__)
         child_formsets = self.get_child_formsets(app_label, parent_model, child_models)
         return self.handle_post(parent_form, child_formsets)
 
@@ -224,17 +237,16 @@ class MasterDetailUpdateView(MasterDetailBaseView, UpdateView):
     def get(self, request, app_label, model_name, pk):
         parent_model, child_models = self.get_parent_and_child_models(app_label, model_name)
         instance = get_object_or_404(parent_model, pk=pk)
-        parent_form = self.get_parent_form(app_label, parent_model.__name__.lower(), instance=instance)
+        parent_form = self.get_parent_form(app_label, parent_model.__name__, instance=instance)
         child_formsets = self.get_child_formsets(app_label, parent_model, child_models, instance=instance)
-        return self.render_form(parent_form, child_formsets, app_label, model_name)
+        return self.render_form(parent_form, child_formsets, app_label, parent_model.__name__)
 
     def post(self, request, app_label, model_name, pk):
         parent_model, child_models = self.get_parent_and_child_models(app_label, model_name)
         instance = get_object_or_404(parent_model, pk=pk)
-        parent_form = self.get_parent_form(app_label, parent_model.__name__.lower(), instance=instance)
+        parent_form = self.get_parent_form(app_label, parent_model.__name__, instance=instance)
         child_formsets = self.get_child_formsets(app_label, parent_model, child_models, instance=instance)
         return self.handle_post(parent_form, child_formsets)
-
 
     
 

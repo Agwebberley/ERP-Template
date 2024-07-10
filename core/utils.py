@@ -91,7 +91,7 @@ def user_has_field_write_permission(user, field_config):
         return True
     return False
 
-def generate_dynamic_form(app_name, model_name, user):
+def generate_dynamic_form(app_name, model_name, user, instance=None):
     model_class = apps.get_model(app_label=app_name, model_name=model_name)
     config = get_model_config(app_name, model_name)
     enabled_fields = get_enabled_fields(app_name, model_name, user, view_type='form')
@@ -100,6 +100,9 @@ def generate_dynamic_form(app_name, model_name, user):
         class Meta:
             model = model_class
             fields = enabled_fields
+
+            def __init__(self, *args, **kwargs):
+                super(DynamicForm, self).__init__(*args, **kwargs)
 
     return DynamicForm
 
