@@ -119,23 +119,23 @@ else:
     }
 
 
-if os.getenv('ENV') == 'PRODUCTION':
-    # ElastiCache Redis settings for production
-    REDIS_HOST = 'clustercfg.redis.ysnb0i.memorydb.us-west-2.amazonaws.com'
-    REDIS_PORT = 6379
-else:
-    # Local Redis settings for development
-    REDIS_HOST = 'localhost'
-    REDIS_PORT = 6379
-
-RQ_QUEUES = {
-    'default': {
-        'HOST': REDIS_HOST,
-        'PORT': REDIS_PORT,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': 360,
-    }
-}
+#if os.getenv('ENV') == 'PRODUCTION':
+#    # ElastiCache Redis settings for production
+#    REDIS_HOST = 'clustercfg.redis.ysnb0i.memorydb.us-west-2.amazonaws.com'
+#    REDIS_PORT = 6379
+#else:
+#    # Local Redis settings for development
+#    REDIS_HOST = 'localhost'
+#    REDIS_PORT = 6379
+#
+#RQ_QUEUES = {
+#    'default': {
+#        'HOST': REDIS_HOST,
+#        'PORT': REDIS_PORT,
+#        'DB': 0,
+#        'DEFAULT_TIMEOUT': 360,
+#    }
+#}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -184,12 +184,12 @@ ASSETS_ROOT = '/static/assets'
 
 LOGIN_URL = 'login'
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
-    }
-}
+#CACHES = {
+#    'default': {
+#        'BACKEND': 'django_redis.cache.RedisCache',
+#        'LOCATION': 'redis://127.0.0.1:6379/1',
+#        'OPTIONS': {
+#            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#        }
+#    }
+#}
