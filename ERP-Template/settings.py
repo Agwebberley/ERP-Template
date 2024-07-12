@@ -127,7 +127,7 @@ else:
 
 if os.getenv('ENV') == 'PRODUCTION':
     # ElastiCache Redis settings for production
-    REDIS_HOST = 'your-elasticache-endpoint'
+    REDIS_HOST = 'clustercfg.redis.ysnb0i.memorydb.us-west-2.amazonaws.com'
     REDIS_PORT = 6379
 else:
     # Local Redis settings for development
