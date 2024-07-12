@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-*x94-xr4db_81kog*syb5o!tlgo)6)r@ib(&$0amfca=tr-=#q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'django-env.eba-ebpb4enp.us-west-2.elasticbeanstalk.com', '172.31.28.155']
+ALLOWED_HOSTS = ['localhost', 'django-env.eba-ebpb4enp.us-west-2.elasticbeanstalk.com', '172.31.28.155', 'erp.applikuapp.com']
 
 CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
