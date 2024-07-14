@@ -22,28 +22,26 @@ class BaseModel(models.Model):
     all_objects = models.Manager()  # Manager that includes deleted objects
 
     def save(self, *args, **kwargs):
-        if not self.pk:
-            event_data = {
-                "action": "created",
-                "data": self.serialize()
-            }
-            publish_event(self.__class__.__name__, json.dumps(event_data))
-        else:
-            event_data = {
-                "action": "updated",
-                "data": self.serialize()
-            }
-            publish_event(self.__class__.__name__, json.dumps(event_data))
-        super().save(*args, **kwargs)
+        is_new_instance = not self.pk
+        super().save(*args, **kwargs)  # Save first to ensure we have an ID for new instances
+
+        event_data = {
+            "channel": self.__class__.__name__,
+            "action": "created" if is_new_instance else "updated",
+            "data": self.serialize()
+        }
+        publish_event(self.__class__.__name__, json.dumps(event_data))
 
     def delete(self, *args, **kwargs):
         self.is_deleted = True
+        self.save(*args, **kwargs)  # Pass args and kwargs to save
+
         event_data = {
+            "channel": self.__class__.__name__,
             "action": "deleted",
             "data": self.serialize()
         }
         publish_event(self.__class__.__name__, json.dumps(event_data))
-        self.save()
 
     def serialize(self):
         def convert_to_serializable(value):

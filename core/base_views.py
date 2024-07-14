@@ -217,7 +217,6 @@ class MasterDetailBaseView(LoginRequiredMixin, NavigationMixin):
                 formset.save()
             return redirect(self.success_url)
     
-        print("LABELS: ", self.kwargs['app_label'], self.kwargs['model_name'])
         return self.render_form(parent_form, child_formsets, self.kwargs['app_label'], self.kwargs['model_name'])
 
 class MasterDetailCreateView(MasterDetailBaseView, CreateView):

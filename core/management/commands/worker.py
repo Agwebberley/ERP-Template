@@ -91,6 +91,8 @@ class Command(BaseCommand):
     def process_message(self, data):
         try:
             message_data = json.loads(data)
+            message_data = json.loads(message_data['Message'])
+            self.stdout.write(self.style.SUCCESS(f"Processing message: {message_data}"))
             channel = message_data.get('channel')
             action = message_data.get('action')
             serialized_data = message_data.get('data')
