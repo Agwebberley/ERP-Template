@@ -1,8 +1,9 @@
 import datetime
+from decimal import Decimal
 import json
 from django.db import models
 from django.contrib.auth.models import Group, User
-from core.redis_utils import publish_event
+from core.aws_utils import publish_event
 from django.forms.models import model_to_dict
 
 
@@ -50,6 +51,8 @@ class BaseModel(models.Model):
                 return value.isoformat()
             elif isinstance(value, datetime.date):
                 return value.isoformat()
+            elif isinstance(value, Decimal):
+                return float(value)
             return value
 
         data = model_to_dict(self)

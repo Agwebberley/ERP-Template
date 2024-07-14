@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
-import dj_database_url
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -27,7 +25,7 @@ SECRET_KEY = 'django-insecure-*x94-xr4db_81kog*syb5o!tlgo)6)r@ib(&$0amfca=tr-=#q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'django-env.eba-ebpb4enp.us-west-2.elasticbeanstalk.com', '172.31.28.155', 'erp.applikuapp.com']
+ALLOWED_HOSTS = ['*']
 
 CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -101,15 +99,28 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ERP-Template.wsgi.application'
-
+AWS_REGION = 'us-west-2'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-if 'DATABASE_URL' in os.environ:
+if 'RDS_HOSTNAME' in os.environ:
     DATABASES = {
-        'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ['RDS_DB_NAME'],
+            'USER': os.environ['RDS_USERNAME'],
+            'PASSWORD': os.environ['RDS_PASSWORD'],
+            'HOST': os.environ['RDS_HOSTNAME'],
+            'PORT': os.environ['RDS_PORT'],
+        }
     }
+        # ElastiCache Redis settings for production
+    REDIS_HOST = 'clustercfg.redis.ysnb0i.memorydb.us-west-2.amazonaws.com'
+    REDIS_PORT = 6379
+    REDIS_SSL = True
+    REDIS_LOCATION = f'rediss://{REDIS_HOST}:{REDIS_PORT}/0'
+
 else: 
     DATABASES = {
         'default': {
@@ -117,23 +128,25 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-
-
-if os.getenv('ENV') == 'PRODUCTION':
-    # ElastiCache Redis settings for production
-    REDIS_HOST = 'clustercfg.redis.ysnb0i.memorydb.us-west-2.amazonaws.com'
-    REDIS_PORT = 6379
-else:
     # Local Redis settings for development
     REDIS_HOST = 'localhost'
     REDIS_PORT = 6379
+    REDIS_SSL = False
+    REDIS_LOCATION = f'redis://{REDIS_HOST}:{REDIS_PORT}/0'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_LOCATION,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
 
 RQ_QUEUES = {
     'default': {
-        'HOST': REDIS_HOST,
-        'PORT': REDIS_PORT,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': 360,
+        'USE_REDIS_CACHE': 'default',
     }
 }
 
@@ -184,12 +197,4 @@ ASSETS_ROOT = '/static/assets'
 
 LOGIN_URL = 'login'
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
-    }
-}
+

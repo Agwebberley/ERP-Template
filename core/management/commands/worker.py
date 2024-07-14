@@ -1,25 +1,21 @@
 import django
 from django.core.management.base import BaseCommand
-from core.redis_utils import get_listeners
+from core.aws_utils import get_listeners, get_or_create_topic, get_channels
 from importlib import import_module
 from django.apps import apps
 from django.conf import settings
 from core.models import LogMessage
-import redis.asyncio as redis
 import json
+import boto3
 
 class Command(BaseCommand):
-    help = 'Run Redis worker'
-
+    help = 'Run SQS worker'
+    
     def handle(self, *args, **kwargs):
         django.setup()  # Ensure Django is fully initialized
-        print("RedisWorker: Starting worker")
-
-        r = redis.from_url(settings.CACHES['default']['LOCATION'])
-        pubsub = r.pubsub()
-        pubsub.psubscribe('*')  # Subscribe to all channels
-        print("RedisWorker: Subscribed to all channels")
-
+        print("SQSWorker: Starting worker")
+        self.sqs_client = boto3.client('sqs', region_name=settings.AWS_REGION)
+        self.sns_client = boto3.client('sns', region_name=settings.AWS_REGION)
         for app_config in apps.get_app_configs():
             try:
                 import_module(f'{app_config.name}.listeners')
@@ -27,21 +23,85 @@ class Command(BaseCommand):
             except ImportError:
                 pass
 
-        for message in pubsub.listen():
-            if message['type'] == 'pmessage':
-                channel = message['channel'].decode('utf-8')
-                data = message['data']
-                self.stdout.write(f'Channel: {channel}, Data: {data}')
-                self.process_message(channel, data)
+        self.process_messages()
 
-    def process_message(self, channel, data):
+    def process_messages(self):
+        while True:
+            for channel in get_channels():
+                queue_url = self.get_or_create_queue(channel)
+                if queue_url:
+                    self.poll_queue(queue_url)
+
+    def get_or_create_queue(self, channel):
         try:
-            message_data = json.loads(data.decode('utf-8'))
+            queue_name = f"{channel}_queue"
+            response = self.sqs_client.create_queue(QueueName=queue_name)
+            queue_url = response['QueueUrl']
+            queue_arn = self.sqs_client.get_queue_attributes(
+                QueueUrl=queue_url,
+                AttributeNames=['QueueArn']
+            )['Attributes']['QueueArn']
+
+            topic_arn = get_or_create_topic(channel)
+            if topic_arn:
+                self.sqs_client.set_queue_attributes(
+                    QueueUrl=queue_url,
+                    Attributes={
+                        'Policy': json.dumps({
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Principal": "*",
+                                    "Action": "sqs:SendMessage",
+                                    "Resource": queue_arn,
+                                }
+                            ]
+                        })
+                    }
+                )
+
+                self.sns_client.subscribe(
+                    TopicArn=topic_arn,
+                    Protocol='sqs',
+                    Endpoint=queue_arn
+                )
+
+            return queue_url
+        except Exception as e:
+            print(f"Error creating/getting SQS queue {channel}: {e}")
+            return None
+
+    def poll_queue(self, queue_url):
+        messages = self.sqs_client.receive_message(
+            QueueUrl=queue_url,
+            MaxNumberOfMessages=10,
+            WaitTimeSeconds=20
+        )
+
+        if 'Messages' in messages:
+            for message in messages['Messages']:
+                body = message['Body']
+                self.process_message(body)
+                self.sqs_client.delete_message(
+                    QueueUrl=queue_url,
+                    ReceiptHandle=message['ReceiptHandle']
+                )
+
+    def process_message(self, data):
+        try:
+            message_data = json.loads(data)
+            channel = message_data.get('channel')
             action = message_data.get('action')
             serialized_data = message_data.get('data')
+            self.stdout.write(self.style.SUCCESS(f"Processing message: {channel} - {action}"))
 
             if channel != 'LogMessage':
-                LogMessage.objects.acreate(channel=channel, message=json.dumps(serialized_data), action=action)
+                LogMessage.objects.create(
+                    channel=channel,
+                    action=action,
+                    message=serialized_data
+                )
 
             listeners = get_listeners(channel)
             for listener in listeners:

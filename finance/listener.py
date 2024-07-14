@@ -1,4 +1,4 @@
-from core.redis_utils import listener
+from core.aws_utils import listener
 
 
 @listener('Order')

@@ -84,7 +84,8 @@ class Command(BaseCommand):
                     if created:
                         self.stdout.write(self.style.SUCCESS(f'Added new model action: {action_name}'))
 
-                    model_config_obj.actions.add(action_obj)
+                    if created:
+                        model_config_obj.actions.add(action_obj)
 
 
         self.stdout.write(self.style.SUCCESS('Configuration update complete.'))

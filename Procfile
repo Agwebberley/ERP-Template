@@ -1,2 +1,2 @@
-web: gunicorn ERP-Template.wsgi:application
-worker: python manage.py worker
+web: gunicorn --bind :8000 ERP-Template.wsgi:application
+worker: python3 manage.py rqworker default
