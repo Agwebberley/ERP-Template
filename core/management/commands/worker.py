@@ -98,16 +98,10 @@ class Command(BaseCommand):
             serialized_data = message_data.get('data')
             self.stdout.write(self.style.SUCCESS(f"Processing message: {channel} - {action}"))
 
-            if channel != 'LogMessage':
-                LogMessage.objects.create(
-                    channel=channel,
-                    action=action,
-                    message=serialized_data
-                )
-
             listeners = get_listeners(channel)
+            listeners += get_listeners("*")
             for listener in listeners:
-                listener(action, serialized_data)
+                listener(channel, action, serialized_data)
         except json.JSONDecodeError as e:
             self.stdout.write(self.style.ERROR(f"Failed to decode JSON: {e}"))
         except Exception as e:
