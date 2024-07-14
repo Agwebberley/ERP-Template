@@ -29,7 +29,7 @@ ALLOWED_HOSTS = ['*']
 
 CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-CORE_VERSION = '1.5.0'
+CORE_VERSION = '1.7.0'
 APP_VERSION = '1.3.0'
 
 # Application definition
