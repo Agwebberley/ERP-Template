@@ -6,85 +6,215 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('auth', '0012_alter_user_first_name_max_length'),
+        ("auth", "0012_alter_user_first_name_max_length"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AppConfiguration',
+            name="AppConfiguration",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, unique=True)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('navigation_enabled', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, unique=True)),
+                ("description", models.TextField(blank=True, null=True)),
+                ("navigation_enabled", models.BooleanField(default=True)),
             ],
         ),
         migrations.CreateModel(
-            name='LogMessage',
+            name="LogMessage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('is_deleted', models.BooleanField(default=False)),
-                ('channel', models.CharField(blank=True, max_length=255, null=True)),
-                ('action', models.CharField(blank=True, max_length=255, null=True)),
-                ('message', models.JSONField(blank=True, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("is_deleted", models.BooleanField(default=False)),
+                ("channel", models.CharField(blank=True, max_length=255, null=True)),
+                ("action", models.CharField(blank=True, max_length=255, null=True)),
+                ("message", models.JSONField(blank=True, null=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='ModelAction',
+            name="ModelAction",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('list_name', models.CharField(max_length=255)),
-                ('detail_name', models.CharField(blank=True, max_length=255, null=True)),
-                ('pattern', models.CharField(max_length=255)),
-                ('action_type', models.CharField(choices=[('dropdown', 'Dropdown'), ('button', 'Button')], default='dropdown', max_length=255)),
-                ('enable_in_list', models.BooleanField(default=True)),
-                ('enable_in_detail', models.BooleanField(default=True)),
-                ('include_pk', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("list_name", models.CharField(max_length=255)),
+                (
+                    "detail_name",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
+                ("pattern", models.CharField(max_length=255)),
+                (
+                    "action_type",
+                    models.CharField(
+                        choices=[("dropdown", "Dropdown"), ("button", "Button")],
+                        default="dropdown",
+                        max_length=255,
+                    ),
+                ),
+                ("enable_in_list", models.BooleanField(default=True)),
+                ("enable_in_detail", models.BooleanField(default=True)),
+                ("include_pk", models.BooleanField(default=True)),
             ],
         ),
         migrations.CreateModel(
-            name='ModelConfiguration',
+            name="ModelConfiguration",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('model_name', models.CharField(max_length=255)),
-                ('enable_search', models.BooleanField(default=True)),
-                ('list_title', models.CharField(blank=True, max_length=255, null=True)),
-                ('default_sort_by', models.CharField(blank=True, max_length=255, null=True)),
-                ('navigation_enabled', models.BooleanField(default=True)),
-                ('list_url', models.CharField(blank=True, max_length=255, null=True)),
-                ('actions', models.ManyToManyField(blank=True, related_name='models', to='core.modelaction')),
-                ('app', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='models', to='core.appconfiguration')),
-                ('read_permission_groups', models.ManyToManyField(blank=True, related_name='read_model_permissions', to='auth.group')),
-                ('read_permission_users', models.ManyToManyField(blank=True, related_name='read_model_permissions', to=settings.AUTH_USER_MODEL)),
-                ('write_permission_groups', models.ManyToManyField(blank=True, related_name='write_model_permissions', to='auth.group')),
-                ('write_permission_users', models.ManyToManyField(blank=True, related_name='write_model_permissions', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("model_name", models.CharField(max_length=255)),
+                ("enable_search", models.BooleanField(default=True)),
+                ("list_title", models.CharField(blank=True, max_length=255, null=True)),
+                (
+                    "default_sort_by",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
+                ("navigation_enabled", models.BooleanField(default=True)),
+                ("list_url", models.CharField(blank=True, max_length=255, null=True)),
+                (
+                    "actions",
+                    models.ManyToManyField(
+                        blank=True, related_name="models", to="core.modelaction"
+                    ),
+                ),
+                (
+                    "app",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="models",
+                        to="core.appconfiguration",
+                    ),
+                ),
+                (
+                    "read_permission_groups",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="read_model_permissions",
+                        to="auth.group",
+                    ),
+                ),
+                (
+                    "read_permission_users",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="read_model_permissions",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "write_permission_groups",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="write_model_permissions",
+                        to="auth.group",
+                    ),
+                ),
+                (
+                    "write_permission_users",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="write_model_permissions",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='FieldConfiguration',
+            name="FieldConfiguration",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('field_name', models.CharField(max_length=255)),
-                ('enable_in_list', models.BooleanField(default=True)),
-                ('enable_in_detail', models.BooleanField(default=True)),
-                ('enable_in_form', models.BooleanField(default=True)),
-                ('display_name', models.CharField(blank=True, max_length=255, null=True)),
-                ('inherit_permissions', models.BooleanField(default=True)),
-                ('read_permission_groups', models.ManyToManyField(blank=True, related_name='read_field_permissions', to='auth.group')),
-                ('read_permission_users', models.ManyToManyField(blank=True, related_name='read_field_permissions', to=settings.AUTH_USER_MODEL)),
-                ('write_permission_groups', models.ManyToManyField(blank=True, related_name='write_field_permissions', to='auth.group')),
-                ('write_permission_users', models.ManyToManyField(blank=True, related_name='write_field_permissions', to=settings.AUTH_USER_MODEL)),
-                ('model', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='fields', to='core.modelconfiguration')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("field_name", models.CharField(max_length=255)),
+                ("enable_in_list", models.BooleanField(default=True)),
+                ("enable_in_detail", models.BooleanField(default=True)),
+                ("enable_in_form", models.BooleanField(default=True)),
+                (
+                    "display_name",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
+                ("inherit_permissions", models.BooleanField(default=True)),
+                (
+                    "read_permission_groups",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="read_field_permissions",
+                        to="auth.group",
+                    ),
+                ),
+                (
+                    "read_permission_users",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="read_field_permissions",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "write_permission_groups",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="write_field_permissions",
+                        to="auth.group",
+                    ),
+                ),
+                (
+                    "write_permission_users",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="write_field_permissions",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "model",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="fields",
+                        to="core.modelconfiguration",
+                    ),
+                ),
             ],
         ),
     ]

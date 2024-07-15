@@ -4,17 +4,19 @@ from inventory.models import Part
 from core.models import BaseModel
 # Create your models here.
 
+
 class OrderItem(BaseModel):
-    order = models.ForeignKey('Order', on_delete=models.CASCADE)
+    order = models.ForeignKey("Order", on_delete=models.CASCADE)
     part = models.ForeignKey(Part, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.part} - {self.quantity}"
-    
+
     @property
     def total(self):
         return self.part.price * self.quantity
+
 
 class Order(BaseModel):
     id = models.AutoField(primary_key=True)

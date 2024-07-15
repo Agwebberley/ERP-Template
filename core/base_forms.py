@@ -1,6 +1,7 @@
 from django import forms
 from django.forms.models import inlineformset_factory
 
+
 class MasterDetailForm(forms.ModelForm):
     # This base class can be used for all forms, now focusing on inline formset support
 
@@ -12,8 +13,11 @@ class MasterDetailForm(forms.ModelForm):
             # Assuming a ForeignKey relationship for simplicity; adjust as needed
             if related_object.one_to_many:
                 Formset = inlineformset_factory(
-                    cls.Meta.model, related_object.related_model,
-                    fields='__all__', extra=1, can_delete=True
+                    cls.Meta.model,
+                    related_object.related_model,
+                    fields="__all__",
+                    extra=1,
+                    can_delete=True,
                 )
                 formset = Formset(data=data, files=files, instance=instance)
                 formsets.append(formset)
