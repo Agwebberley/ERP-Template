@@ -4,7 +4,6 @@ from core.aws_utils import get_listeners, get_or_create_topic, get_channels
 from importlib import import_module
 from django.apps import apps
 from django.conf import settings
-from core.models import LogMessage
 import json
 import boto3
 

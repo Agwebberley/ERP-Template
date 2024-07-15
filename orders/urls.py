@@ -1,6 +1,5 @@
 from django.urls import path
 from orders.views import OrderListView, OrderDetailView, OrderCreateView, OrderUpdateView, OrderDeleteView
-from core.base_views import BaseMasterDetailView, MasterDetailUpdateView, MasterDetailCreateView
 
 urlpatterns = [
     path('list/', OrderListView.as_view(), name='order-list'),

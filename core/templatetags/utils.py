@@ -26,19 +26,19 @@ def get_property(obj, prop):
 def is_foreign_key(instance, field):
     try:
         return instance._meta.get_field(field).get_internal_type() == 'ForeignKey'
-    except:
+    except AttributeError:
         return False
 
 @register.filter
 def get_detail_url(instance, field):
     try:
         return instance._meta.get_field(field).related_model._meta.model_name + '-detail'
-    except:
+    except AttributeError:
         return ''
 
 @register.filter
 def get_foreign_key_value(instance, field):
     try:
         return getattr(instance, field).pk
-    except:
+    except AttributeError:
         return ''

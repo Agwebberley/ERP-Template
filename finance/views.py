@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from core.base_views import BaseListView, BaseDetailView
 from .models import Invoice
 

@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
 from django.apps import apps
-from django.contrib.auth.models import Group, User
 from core.models import AppConfiguration, ModelConfiguration, FieldConfiguration, ModelAction
 from django.conf import settings
 

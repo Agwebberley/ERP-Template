@@ -1,7 +1,6 @@
-from django.forms import BaseForm
 from django.http import JsonResponse
 from django.views import View
-from django.views.generic import CreateView, UpdateView, ListView, DetailView, DeleteView, View
+from django.views.generic import CreateView, UpdateView, ListView, DetailView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
@@ -44,7 +43,6 @@ class BaseCreateView(LoginRequiredMixin, NavigationMixin, CreateView):
     def get_form_class(self):
         # Dynamically get the form class based on the model
         model_config = get_object_or_404(ModelConfiguration, model_name=self.model.__name__)
-        absolute_url = reverse_lazy(model_config.model_name.lower() + '-list')
         return generate_dynamic_form(model_config.app.name, model_config.model_name, self.request.user)
     
     def get_context_data(self, **kwargs):

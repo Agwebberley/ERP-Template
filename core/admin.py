@@ -1,6 +1,5 @@
 from django.contrib import admin
 from .models import AppConfiguration, ModelConfiguration, FieldConfiguration, ModelAction
-from .management.commands.fake_data import Command as FakeDataCommand
 
 @admin.register(AppConfiguration)
 class AppConfigurationAdmin(admin.ModelAdmin):

@@ -1,6 +1,5 @@
 from finance.models import Invoice
 from orders.models import Order
-import json
 
 def event_handler(action, data):
     if action == 'created':

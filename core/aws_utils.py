@@ -1,5 +1,4 @@
 import boto3
-import json
 from django.conf import settings
 
 sns_client = boto3.client('sns', region_name=settings.AWS_REGION)

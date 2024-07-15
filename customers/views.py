@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.urls import reverse_lazy
 from core.base_views import BaseListView, BaseCreateView, BaseUpdateView, BaseDeleteView, BaseDetailView
 from .models import Customer

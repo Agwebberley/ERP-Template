@@ -1,7 +1,6 @@
-from django.shortcuts import render
 from django.urls import reverse_lazy
 from core.base_views import BaseListView, BaseDeleteView, BaseMasterDetailView, MasterDetailUpdateView, MasterDetailCreateView
-from .models import Order, OrderItem
+from .models import Order
 # Create your views here.
 
 class OrderListView(BaseListView):
